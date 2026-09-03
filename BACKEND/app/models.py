@@ -66,18 +66,16 @@ class File(Base):
     file_type: Mapped[str] = mapped_column(
         String(50)
         )
-    password_protected:Mapped[bool]=mapped_column(
-        Boolean,
-        default=False
-    )
 
-    password_protected:Mapped[bool]=mapped_column(
-        Boolean,
-        default=False
-    )
+
     is_favorite: Mapped[bool] = mapped_column(
         Boolean,
         default=False)
+
+    is_indexed: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False
+    )
 
     updated_at:Mapped[datetime]=mapped_column(
         DateTime
@@ -89,7 +87,8 @@ class File(Base):
     )
 
     folder_id:Mapped[int]=mapped_column(
-        ForeignKey("folder.folder_id")
+        ForeignKey("folder.folder_id"),
+        nullable=True
     )
 
 class Vector(Base):
