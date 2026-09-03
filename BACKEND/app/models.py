@@ -33,7 +33,8 @@ class Upload(Base):
     __tablename__ = "uploads"
 
     upload_id: Mapped[int] = mapped_column(
-        primary_key=True
+        primary_key=True,
+        autoincrement=True
         )
     user_id:Mapped[int]=mapped_column(
         ForeignKey("users.user_id") 
@@ -50,7 +51,8 @@ class File(Base):
     __tablename__ = "files"
 
     file_id: Mapped[int] = mapped_column(
-        primary_key=True
+        primary_key=True,
+        autoincrement=True
         )
     user_id:Mapped[int] = mapped_column(
         ForeignKey("users.user_id")
@@ -169,7 +171,11 @@ class Folder(Base):
         autoincrement=True
     )
 
-    parent_folder:Mapped[int | None]=mapped_column(
+    parent_folder_id:Mapped[int | None]=mapped_column(
         ForeignKey("folder.folder_id"),
         nullable=True
+    )
+
+    updated_at:Mapped[datetime]=mapped_column(
+        DateTime
     )
