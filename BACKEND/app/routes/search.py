@@ -7,10 +7,10 @@ from app.database import get_db
 
 router=APIRouter(
     prefix="/search",
-    tags="Search files"
+    tags=["Search files"]
 )
 
-@router.get("/search")
+@router.get("/id",status_code=status.HTTP_200_OK)
 def search_by_filename(file_name:str,
                        current_user:User=Depends(get_current_user),
                        db:Session=Depends(get_db)
