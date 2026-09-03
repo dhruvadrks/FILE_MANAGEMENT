@@ -2,6 +2,8 @@ from pwdlib import PasswordHash
 import hashlib
 import hmac
 import jwt
+import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta,timezone
 from fastapi import Depends,HTTPException,status
 from sqlalchemy.orm import Session
@@ -56,7 +58,8 @@ def hash_password(password:str):
 def verify_password(password: str, hashed_password: str) -> bool:
     return password_hash.verify(password, hashed_password)
 
-secret_key = "file_management_vector_vault_secret_key"
+load_dotenv()
+secret_key = os.getenv("secret_key")
 ALGORITHM = "HS256"
 reset_token_expiration_minutes = 5
 access_token_expiration_minutes = 30
