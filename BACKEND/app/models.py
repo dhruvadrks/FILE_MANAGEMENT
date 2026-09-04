@@ -127,7 +127,26 @@ class Sharelink(Base):
     )
 
     status:Mapped[bool]=mapped_column(
-        Boolean
+        Boolean,
+        default=True
+    )
+
+class Permission(Base):
+    __tablename__="permission"
+
+    permission_id:Mapped[int]=mapped_column(
+        primary_key=True,
+        autoincrement=True
+    )
+
+    share_id:Mapped[int]=mapped_column(
+        ForeignKey("sharelink.share_id"),
+        nullable=False
+    )
+
+    email:Mapped[str]=mapped_column(
+        String(255),
+        nullable=False
     )
 
 class Accessrequest(Base):
