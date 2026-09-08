@@ -1,11 +1,19 @@
 from fastapi import FastAPI
 from app.database import Base, engine
 from app import models
+from contextlib import asynccontextmanager
+from app.service.faiss_index import load_index
 from app.routes.auth import router as auth_router
 from app.routes.files import router as files_router
 from app.routes.search import router as search_router
 from app.routes.sharing import router as share_router
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app:FastAPI):
+    load_index()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 Base.metadata.create_all(bind=engine)
 app.include_router(auth_router)

@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
-from app.models import Chunk,Vector
 from pathlib import Path
+import numpy as np
+from app.models import File,Vector
 from app.service.text_extraction import extract_text
 from app.service.chunking import chunk_text
 from app.service.embedding import generate_embeddings
+from app.service.faiss_index import add_embeddings,save_index
 
 def index_file(
         file_path:Path,
@@ -11,6 +13,7 @@ def index_file(
         file_id:int,
         db:Session
 ):
+
     text=extract_text(file_path,file_type)
 
     chunks=chunk_text(text)
@@ -20,22 +23,38 @@ def index_file(
 
     embeddings=generate_embeddings(chunks)
 
-    for index, chunk in enumerate(chunks):
-        new_chunk=Chunk(
-            file_id=file_id,
-            chunk_index=index
-        )
+    vector_rows=[]
 
-        db.add(new_chunk)
-        db.flush()
-
+    for embedding in embeddings:
         new_vector=Vector(
-            chunk_id=new_chunk.chunk_id
+            file_id=file_id
         )
+
         db.add(new_vector)
-        db.flush()
+        vector_rows.append(new_vector)
+    db.flush()
+
+    vector_ids=[]
+    for vector in vector_rows:
+        vector_ids.append(vector.vector_id)
+    vector_ids=np.array(vector_ids,dtype="int64")
+
+    add_embeddings(
+        embeddings,
+        vector_ids
+    )
+
+    save_index()
+
+    file=db.get(File,file_id)
+
+    if file:
+        file.is_indexed=True
 
     db.commit()
+
     return embeddings
+
+
 
 
