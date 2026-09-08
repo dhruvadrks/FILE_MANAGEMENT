@@ -22,3 +22,13 @@ def generate_embeddings(
 
     return embeddings.astype("float32")
 
+def search_embeddings(search_query:str)->np.ndarray:
+    search_query=f"query: {search_query}"
+
+    search_query_embeddings = model.encode(
+        [search_query],
+        convert_to_numpy=True
+    )
+
+    return search_query_embeddings.astype("float32")
+
