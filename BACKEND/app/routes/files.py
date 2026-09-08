@@ -327,15 +327,15 @@ def delete_file(
             detail="File not found"
         )
 
-    path_to_file = (
-        Path(__file__).resolve().parent.parent.parent
-        / "storage"
-        / f"user_{current_user.user_id}"
-        / f"file_{file_id}"
-    )
+    # path_to_file = (
+    #     Path(__file__).resolve().parent.parent.parent
+    #     / "storage"
+    #     / f"user_{current_user.user_id}"
+    #     / f"file_{file_id}"
+    # )
 
-    if path_to_file.exists():
-        path_to_file.unlink()
+    # if path_to_file.exists():
+    #     path_to_file.unlink()
 
     db.query(Upload).filter(
         Upload.user_id == current_user.user_id,

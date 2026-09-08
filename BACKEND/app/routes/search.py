@@ -10,20 +10,20 @@ router=APIRouter(
     tags=["Search files"]
 )
 
-@router.get("/id",status_code=status.HTTP_200_OK)
+@router.get("/name",status_code=status.HTTP_200_OK)
 def search_by_filename(file_name:str,
                        current_user:User=Depends(get_current_user),
                        db:Session=Depends(get_db)
                        ):
     file=(
         db.query(File)
-        .filter(current_user.user_id==File.user_id,
+        .filter(File.user_id==current_user.user_id,
                 file_name==File.file_name).first()
     )
 
     if not file:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            details="File not found"
+            detail="File not found"
         )
     return file

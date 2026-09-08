@@ -11,6 +11,22 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.database import get_db
 from app.models import User
 
+
+password_hash=PasswordHash.recommended()
+
+def hash_password(password:str):
+    return password_hash.hash(password)
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    return password_hash.verify(password, hashed_password)
+
+load_dotenv()
+secret_key = os.getenv("secret_key")
+ALGORITHM = "HS256"
+reset_token_expiration_minutes = 5
+access_token_expiration_minutes = 30
+
+
 jwt_expander=HTTPBearer()
 
 def get_current_user(
@@ -48,21 +64,6 @@ def get_current_user(
             detail="User not found"
         )
     return existing_user_id
-
-
-password_hash=PasswordHash.recommended()
-
-def hash_password(password:str):
-    return password_hash.hash(password)
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return password_hash.verify(password, hashed_password)
-
-load_dotenv()
-secret_key = os.getenv("secret_key")
-ALGORITHM = "HS256"
-reset_token_expiration_minutes = 5
-access_token_expiration_minutes = 30
 
 def create_access_token(user_id: int, email: str) -> str:
 

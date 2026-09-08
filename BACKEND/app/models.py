@@ -91,15 +91,36 @@ class File(Base):
         nullable=True
     )
 
-class Vector(Base):
-    __tablename__="vector"
 
-    vector_id:Mapped[int]=mapped_column(
-        primary_key=True
+class Chunk(Base):
+    __tablename__ = "chunks"
+
+    chunk_id: Mapped[int] = mapped_column(
+        primary_key=True,
+        autoincrement=True
     )
 
-    file_id:Mapped[int]=mapped_column(
-        ForeignKey("files.file_id")
+    file_id: Mapped[int] = mapped_column(
+        ForeignKey("files.file_id"),
+        nullable=False
+    )
+
+    chunk_index: Mapped[int] = mapped_column(
+        nullable=False
+    )
+
+
+class Vector(Base):
+    __tablename__ = "vectors"
+
+    vector_id: Mapped[int] = mapped_column(
+        primary_key=True,
+        autoincrement=True
+    )
+
+    file_id: Mapped[int] = mapped_column(
+        ForeignKey("files.file_id"),
+        nullable=False
     ) 
 
 class Sharelink(Base):
