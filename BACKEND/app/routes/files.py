@@ -1,15 +1,17 @@
 from datetime import datetime, timezone
 from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+import numpy as np
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status,BackgroundTasks
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import filetype
 from app.database import get_db
-from app.models import File, Upload, User
+from app.models import *
 from app.security import get_current_user
 from app.service.storage import save_file
 from app.schema.file_schema import RenameRequest
-
+from app.service.indexing import background_index_file
+from app.service.faiss_index import remove_embeddings
 
 router = APIRouter(
     prefix="/files",
@@ -20,8 +22,10 @@ router = APIRouter(
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
 def get_Uploads(
     file: UploadFile,
+    background_tasks:BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
+    
 ):
     # Get file size
     file.file.seek(0, 2)
@@ -40,42 +44,62 @@ def get_Uploads(
     else:
         file_type = "application/octet-stream"
 
+    file_path= None
+
+    try:
     # Create a new file record
-    new_file = File(
-        user_id=current_user.user_id,
-        file_name=file.filename,
-        file_size=file_size,
-        file_type=file_type,
-        is_indexed=False,
-        is_favorite=False,
-        updated_at=datetime.now(timezone.utc),
-        folder_id=None
-    )
+        new_file = File(
+            user_id=current_user.user_id,
+            file_name=file.filename,
+            file_size=file_size,
+            file_type=file_type,
+            is_indexed=False,
+            is_favorite=False,
+            updated_at=datetime.now(timezone.utc),
+            folder_id=None
+        )
 
-    db.add(new_file)
-    db.flush()
+        db.add(new_file)
+        db.flush()
 
-    # Save physical file using file_id
-    file_path = save_file(
-        user_id=current_user.user_id,
-        file_id=new_file.file_id,
-        file=file
-    )
+        # Save physical file using file_id
+        file_path = save_file(
+            user_id=current_user.user_id,
+            file_id=new_file.file_id,
+            file=file
+        )
 
-    # Create upload record
-    new_upload = Upload(
-        user_id=current_user.user_id,
-        file_id=new_file.file_id,
-        upload_status="in_progress",
-        uploaded_size=file_size
-    )
+        # Create upload record
+        new_upload = Upload(
+            user_id=current_user.user_id,
+            file_id=new_file.file_id,
+            upload_status="completed",
+            uploaded_size=file_size
+        )
 
-    db.add(new_upload)
+        db.add(new_upload)
 
-    db.commit()
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        if file_path is not None:
+            path=Path(file_path)
+
+            if path.exists():
+                path.unlink()
+        raise
+
 
     db.refresh(new_file)
     db.refresh(new_upload)
+
+    background_tasks.add_task(
+        background_index_file,
+        file_path,
+        new_file.file_type,
+        new_file.file_id
+    )
 
     return {
         "file_id": new_file.file_id,
@@ -107,7 +131,8 @@ def get_file(
     file_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
-):
+):  
+    #check for file and its owner
     file = (
         db.query(File)
         .filter(
@@ -211,34 +236,11 @@ def download(
     if not media_type:
         media_type = "application/octet-stream"
 
-    # Get correct extension from actual MIME type
-    correct_extension = None
-
-    if media_type != "application/octet-stream":
-        correct_extension = {
-            "application/pdf": ".pdf",
-            "image/png": ".png",
-            "image/jpeg": ".jpg",
-            "image/gif": ".gif",
-            "image/webp": ".webp",
-            "text/plain": ".txt",
-            "application/zip": ".zip",
-            "audio/mpeg": ".mp3",
-            "video/mp4": ".mp4",
-        }.get(media_type)
-
-    # Keep user's chosen base name
-    original_name = Path(file.file_name)
-
-    if correct_extension:
-        download_name = original_name.stem + correct_extension
-    else:
-        download_name = file.file_name
-
+    
     return FileResponse(
         path=file_path,
         media_type=media_type,
-        filename=download_name
+        filename=file.file_name
     )
 
 
@@ -327,21 +329,72 @@ def delete_file(
             detail="File not found"
         )
 
-    # path_to_file = (
-    #     Path(__file__).resolve().parent.parent.parent
-    #     / "storage"
-    #     / f"user_{current_user.user_id}"
-    #     / f"file_{file_id}"
-    # )
+    path_to_file = (
+    Path(__file__).resolve().parent.parent.parent
+    / "storage"
+    / f"user_{current_user.user_id}"
+    / f"file_{file_id}"
+    )
 
-    # if path_to_file.exists():
-    #     path_to_file.unlink()
+    try:
+        if path_to_file.exists():
+            path_to_file.unlink()
+
+        else:
+            raise FileNotFoundError("File does not exist in storage")
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"failed to delete file from storage: {str(e)}"
+        )
+
+    vector_rows=(
+        db.query(Vector)
+        .filter(Vector.file_id==file_id)
+        .all()
+    )
+
+    vector_ids=[]
+    for vector in vector_rows:
+        vector_ids.append(vector.vector_id)
+
+    # vector_ids=np.array(vector_ids)        
+
+    if vector_ids:
+        vector_ids=np.array(vector_ids,dtype="int64")
+
+        try:
+            remove_embeddings(vector_ids)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"failed to remove embeddings from from FAISS: {str(e)}"
+            )
+        
+    for vector in vector_rows:
+        db.delete(vector)
+
+    db.flush()
 
     db.query(Upload).filter(
         Upload.user_id == current_user.user_id,
         Upload.file_id == file.file_id
-    ).delete()
+    ).delete(synchronize_session=False)
 
+    db.flush()
+
+    share_links=(
+        db.query(Sharelink)
+        .filter(Sharelink.file_id==file_id)
+        .all()
+    )
+
+    for share_link in share_links:
+        share_link.status=False
+
+    db.flush()
+    
     db.delete(file)
     db.commit()
 

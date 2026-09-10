@@ -28,7 +28,7 @@ def extract_text(file_path:Path,file_type:str):
         text=""
 
         for paragraph in document.paragraphs:
-            text += paragraph + "\n"
+            text += paragraph.text + "\n"
 
         return text
 

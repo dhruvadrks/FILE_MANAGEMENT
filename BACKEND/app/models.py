@@ -132,7 +132,9 @@ class Sharelink(Base):
     )
 
     file_id:Mapped[int]=mapped_column(
-        ForeignKey("files.file_id")
+        ForeignKey("files.file_id",
+                   ondelete="SET NULL"
+                   ),nullable=True
     )
 
     token_hash:Mapped[str]=mapped_column(

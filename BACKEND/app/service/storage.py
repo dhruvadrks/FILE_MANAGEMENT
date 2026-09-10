@@ -16,7 +16,12 @@ def save_file(user_id: int, file, file_id: int) -> str:
 
     file_path = user_storage_dir / f"file_{file_id}"
 
-    with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    try:
 
+        with file_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception:
+        if file_path.exists():
+            file_path.unlink()
+        raise
     return str(file_path)

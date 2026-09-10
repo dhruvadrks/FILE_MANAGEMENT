@@ -1,74 +1,109 @@
-from pwdlib import PasswordHash
+import os
 import hashlib
 import hmac
+from datetime import datetime, timedelta, timezone
 import jwt
-import os
 from dotenv import load_dotenv
-from datetime import datetime, timedelta,timezone
-from fastapi import Depends,HTTPException,status
-from sqlalchemy.orm import Session
+from pwdlib import PasswordHash
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
 
 
-password_hash=PasswordHash.recommended()
-
-def hash_password(password:str):
-    return password_hash.hash(password)
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return password_hash.verify(password, hashed_password)
 
 load_dotenv()
+
 secret_key = os.getenv("secret_key")
+
 ALGORITHM = "HS256"
+
 reset_token_expiration_minutes = 5
-access_token_expiration_minutes = 30
+access_token_expiration_minutes = 300
 
 
-jwt_expander=HTTPBearer()
+password_hash = PasswordHash.recommended()
+
+
+def hash_password(password: str):
+    return password_hash.hash(password)
+
+
+def verify_password(
+    password: str,
+    hashed_password: str
+) -> bool:
+    return password_hash.verify(
+        password,
+        hashed_password
+    )
+
+
+jwt_expander = HTTPBearer()
+
 
 def get_current_user(
-        credentials: HTTPAuthorizationCredentials = Depends(jwt_expander),
-        db:Session=Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(jwt_expander),
+    db: Session = Depends(get_db)
 ):
-    token=credentials.credentials
+    token = credentials.credentials
+
     try:
-        payload=jwt.decode(
-            token,secret_key,
-            algorithms=ALGORITHM
+        payload = jwt.decode(
+            token,
+            secret_key,
+            algorithms=[ALGORITHM]
         )
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired"
         )
+
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
 
-    payload_user_id=payload.get("user_id")
+    payload_user_id = payload.get("user_id")
+
     if not payload_user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid token"
         )
 
-    existing_user_id=db.query(User).filter(User.user_id==payload_user_id).first()
-    if existing_user_id is None:
+    existing_user = (
+        db.query(User)
+        .filter(
+            User.user_id == payload_user_id
+        )
+        .first()
+    )
+
+    if existing_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    return existing_user_id
 
-def create_access_token(user_id: int, email: str) -> str:
+    return existing_user
 
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=access_token_expiration_minutes
+
+
+def create_access_token(
+    user_id: int,
+    email: str
+) -> str:
+
+    expire = (
+        datetime.now(timezone.utc)
+        + timedelta(
+            minutes=access_token_expiration_minutes
+        )
     )
 
     payload = {
@@ -85,46 +120,62 @@ def create_access_token(user_id: int, email: str) -> str:
 
     return token
 
-def create_reset_token(user_id:int,email:str,password_hashed:str)->str:
-
-    #create a fingerprint of of current passsword hash
-    password_fingerprint=hmac.new(secret_key.encode(), 
-                        password_hashed.encode(), 
-                        hashlib.sha256
-                        ).hexdigest()
 
 
-    expire=datetime.now(timezone.utc)+timedelta(
-        minutes=reset_token_expiration_minutes)
+def create_reset_token(
+    user_id: int,
+    email: str,
+    password_hashed: str
+) -> str:
 
-    payload={
+    password_fingerprint = hmac.new(
+        secret_key.encode(),
+        password_hashed.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    expire = (
+        datetime.now(timezone.utc)
+        + timedelta(
+            minutes=reset_token_expiration_minutes
+        )
+    )
+
+    payload = {
         "user_id": user_id,
         "email": email,
         "password_fingerprint": password_fingerprint,
         "exp": expire
     }
 
-    token=jwt.encode(payload,secret_key,algorithm=ALGORITHM)
+    token = jwt.encode(
+        payload,
+        secret_key,
+        algorithm=ALGORITHM
+    )
 
     return token
 
-def verify_reset_token(token:str)->dict:
+
+def verify_reset_token(token: str) -> dict:
+
     try:
-        payload=jwt.decode(
+        payload = jwt.decode(
             token,
             secret_key,
             algorithms=[ALGORITHM]
         )
+
         return payload
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired"
         )
+
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
-
-
