@@ -31,7 +31,7 @@ def search_by_filename(file_name:str,
         )
     return file
 
-THRESHOLD = 0.33
+THRESHOLD = 0.36
 
 @router.get("/query", status_code=status.HTTP_200_OK)
 def semantic_search(

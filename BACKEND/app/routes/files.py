@@ -4,7 +4,7 @@ import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status,BackgroundTasks
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-import filetype
+from magika import Magika
 from app.database import get_db
 from app.models import *
 from app.security import get_current_user
@@ -18,6 +18,7 @@ router = APIRouter(
     tags=["Files"]
 )
 
+m=Magika()
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
 def get_Uploads(
@@ -32,17 +33,12 @@ def get_Uploads(
     file_size = file.file.tell()
     file.file.seek(0)
 
-    # Read the beginning of the file to detect actual file type
-    file_header = file.file.read(261)
+   # Detect actual file type from file contents
+    result = m.identify_bytes(file.file.read())
+
     file.file.seek(0)
 
-    # Detect actual file type from file contents
-    detected_type = filetype.guess(file_header)
-
-    if detected_type:
-        file_type = detected_type.mime
-    else:
-        file_type = "application/octet-stream"
+    file_type = result.output.mime_type
 
     file_path= None
 

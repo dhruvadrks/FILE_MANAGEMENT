@@ -1,8 +1,10 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase,sessionmaker
 
-
-DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/file_management"
+load_dotenv()
+DATABASE_URL=os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL)
 

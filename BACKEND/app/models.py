@@ -64,7 +64,7 @@ class File(Base):
     file_size: Mapped[int]
 
     file_type: Mapped[str] = mapped_column(
-        String(50)
+        String(100)
         )
 
 
