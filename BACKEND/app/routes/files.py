@@ -4,7 +4,7 @@ from app.database.database import get_db
 from app.database.models import User
 from app.security import get_current_user
 from app.schema.file_schema import RenameRequest
-from app.routes_handler.files_handler import (
+from app.handlers.files_handler import (
     upload_file_handler,
     get_files_handler,
     get_file_handler,

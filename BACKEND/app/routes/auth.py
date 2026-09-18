@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.schema.auth_schema import ForgotPasswordRequest, LoginResponse, PasswordResetResponse, RegisterRequest, RegisterResponse, LoginRequest, ResetPasswordRequest
-from app.routes_handler.auth_handler import register_user,login_user,forgot_password_user,reset_password_user
+from app.handlers.auth_handler import register_user,login_user,forgot_password_user,reset_password_user
 
 
 router = APIRouter(
