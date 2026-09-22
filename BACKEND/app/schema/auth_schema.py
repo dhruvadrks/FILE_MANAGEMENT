@@ -18,6 +18,7 @@ class RegisterResponse(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
+    message: str
 
 class LoginResponse(BaseModel):
     user_id: int

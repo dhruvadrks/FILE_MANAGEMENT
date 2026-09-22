@@ -7,6 +7,7 @@ from app.routes.auth import router as auth_router
 from app.routes.files import router as files_router
 from app.routes.search import router as search_router
 from app.routes.sharing import router as share_router
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
@@ -14,6 +15,14 @@ async def lifespan(app:FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 app.include_router(auth_router)

@@ -1,54 +1,79 @@
+.register-container{
 
-.login-container{
     width: 350px;
+
     margin: 100px auto;
+
     padding-left: 30px;
+
     border: 1px solid #0a0a0a;
+
     border-radius: 10px;
+
 }
 
-.login-container h1{
+.register-container h1{
+
     text-align: center;
+
     transform: translate(-15px);
+
 }
 
-.login-container div{
+.register-container div{
+
     margin-bottom: 18px;
+
 }
 
-.login-container label{
+.register-container label{
+
     display: block;
+
     margin-bottom: 5px;
+
 }
 
-.login-container input{
+.register-container input{
+
     width: 280px;
+
     border-color: black;
+
     border-radius: 5px;
+
     padding: 5px;
+
 }
 
-.login-container button{
+.register-container button{
+
     display: block;
+
     margin: 0 auto 10px auto;
+
     transform: translate(-16px);
+
     height: 25px;
+
     font-size: 17px;
+
 }
 
-.login-container button:hover{
+.register-container button:hover{
+
     background-color: #ddd;
-    cursor: pointer;
-}
 
-.forgot-password{
-    position: relative;
-    left: 205px;
-    padding-top: 5px;
+    cursor: pointer;
+
 }
 
 p{
+
     display: block;
+
     text-align: center;
+
     transform: translate(-20px);
+
 }

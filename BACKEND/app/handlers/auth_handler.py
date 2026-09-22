@@ -91,7 +91,7 @@ def forgot_password_user(
     )
 
     reset_link = (
-        f"http://localhost:3000/reset-password?token={token}"
+        f"http://localhost:4200/reset-password?token={token}"
     )
 
     print(

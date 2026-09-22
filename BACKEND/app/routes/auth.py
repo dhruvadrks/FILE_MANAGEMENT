@@ -26,7 +26,8 @@ def register(
         user_id=new_user.user_id,
         first_name=new_user.first_name,
         last_name=new_user.last_name,
-        email=new_user.email
+        email=new_user.email,
+        message="Registration successfull"
     )
 
 @router.post(
