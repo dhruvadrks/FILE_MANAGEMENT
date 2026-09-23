@@ -1,8 +1,13 @@
+.logo {
+    width: 320px;
+    display: block;
+    margin: 60px auto 20px;
+}
 
-.login-container{
+.login-container {
     width: 350px;
-    margin: 100px auto;
-    padding-left: 30px;
+    margin: 0 auto;
+    padding: 30px;
     border: 1px solid #0a0a0a;
     border-radius: 10px;
 }

@@ -1,0 +1,63 @@
+<div class="dashboard">
+
+    <header class="top-bar">
+        <img class="logo" src="/logo.png" alt="Logo">
+    </header>
+
+    <div class="dashboard-body">
+
+        <aside class="sidebar">
+
+            <button
+                class="upload-button"
+                type="button"
+                (click)="fileInput.click()"
+            >
+                Upload File
+            </button>
+
+            <input
+                #fileInput
+                type="file"
+                hidden
+                (change)="UploadFile($event)"
+            >
+
+            <button
+                class="sidebar-button"
+                routerLink="/dashboard/files"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+            >
+                My Files
+            </button>
+
+            <button
+                class="sidebar-button"
+                routerLink="/dashboard/favorites"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+            >
+                Favorites
+            </button>
+
+            <button
+                class="sidebar-button"
+                routerLink="/dashboard/share-links"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+            >
+                Share Links
+            </button>
+
+        </aside>
+
+        <main class="main-content">
+
+            <router-outlet></router-outlet>
+
+        </main>
+
+    </div>
+
+</div>
