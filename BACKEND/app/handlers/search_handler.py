@@ -28,7 +28,7 @@ def search_by_filename_handler(
 
     return file
 
-THRESHOLD = 0.36
+THRESHOLD = 0.50
 
 
 def semantic_search_handler(

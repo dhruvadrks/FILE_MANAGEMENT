@@ -2,6 +2,7 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 interface LoginResponse {
   user_id: number;
@@ -25,7 +26,8 @@ export class Login {
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   login() {
@@ -37,7 +39,8 @@ export class Login {
       }
     ).subscribe({
       next: response => {
-        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('access_token', response.access_token)
+        this.router.navigate(['/dashboard/files'])
       },
 
       error: error => {

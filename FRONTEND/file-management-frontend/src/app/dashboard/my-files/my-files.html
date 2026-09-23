@@ -1,0 +1,221 @@
+<div class="search-section">
+
+    <input
+        id="search-bar"
+        type="text"
+        placeholder="Search files"
+        [(ngModel)]="searchText"
+        (ngModelChange)="searchTextChanged()"
+    >
+
+    <div class="search-type">
+
+        <label>
+            <input
+                type="radio"
+                name="searchType"
+                value="filename"
+                [(ngModel)]="searchType"
+            >
+            Filename
+        </label>
+
+        <label>
+            <input
+                type="radio"
+                name="searchType"
+                value="content"
+                [(ngModel)]="searchType"
+            >
+            Content
+        </label>
+
+    </div>
+
+    <button
+        class="search-button"
+        type="button"
+        (click)="searchFiles()"
+    >
+        Search
+    </button>
+
+</div>
+
+<h2>My Files</h2>
+
+<table class="file-table">
+
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Filesize</th>
+            <th>Uploaded Date</th>
+            <th>Favorite</th>
+            <th>Indexing Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @for (file of files; track file.file_id) {
+
+            <tr>
+
+                <td
+                    class="file-name"
+                    (click)="ViewFile(file)"
+                >
+                    <span>{{file.file_name}}</span>
+                </td>
+
+                <td>
+                    {{formatFileSize(file.file_size)}}
+                </td>
+
+                <td>
+                    {{file.updated_at | date:'dd-yyyy'}}
+                </td>
+
+                <td>
+
+                    <button
+                        class="favorite-button"
+                        [class.favorite-active]="file.is_favorite"
+                        (click)="toggleFavorite(file)"
+                    >
+                        ★
+                    </button>
+
+                </td>
+
+                <td>
+
+                    @if (file.is_indexed) {
+                        Indexed
+                    } @else {
+                        Not Indexed
+                    }
+
+                </td>
+
+                <td class="actions">
+
+                    <select
+                        (change)="handleAction($event, file)"
+                    >
+
+                        <option value="">
+                            ⋮
+                        </option>
+
+                        <option value="download">
+                            Download
+                        </option>
+
+                        <option value="rename">
+                            Rename
+                        </option>
+
+                        <option value="share">
+                            Share
+                        </option>
+
+                        <option value="delete">
+                            Delete
+                        </option>
+
+                    </select>
+
+                </td>
+
+            </tr>
+
+        }
+
+    </tbody>
+
+</table>
+
+@if (showSharePopup) {
+
+    <div class="share-overlay">
+
+        <div class="share-popup">
+
+            <h2>Share File</h2>
+
+            <p>{{ selectedFile?.file_name }}</p>
+
+            <label>Grant Access</label>
+
+            <input
+                type="text"
+                [(ngModel)]="shareEmails"
+                placeholder="Enter email ID"
+            >
+
+            <label>Expires in</label>
+
+            <div class="expiry-section">
+
+                <input
+                    type="number"
+                    [(ngModel)]="expiresIn"
+                    min="1"
+                    placeholder="Optional"
+                >
+
+                <select [(ngModel)]="expiresUnit">
+
+                    <option value="">
+                        Default (3 Days)
+                    </option>
+
+                    <option value="minutes">
+                        Minutes
+                    </option>
+
+                    <option value="hours">
+                        Hours
+                    </option>
+
+                    <option value="days">
+                        Days
+                    </option>
+
+                    <option value="years">
+                        Years
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="share-buttons">
+
+                <button
+                    type="button"
+                    (click)="createShareLink()"
+                >
+                    Create Share Link
+                </button>
+
+                <button
+                    type="button"
+                    (click)="closeSharePopup()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+}
+
+
+
