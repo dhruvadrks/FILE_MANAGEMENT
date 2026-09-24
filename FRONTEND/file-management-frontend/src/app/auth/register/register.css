@@ -1,82 +1,127 @@
-.logo {
-    width: 240px;
-    height: 100px;
-    display: block;
-    margin: 60px auto 30px auto;
+/* Page background */
+:host {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+
+    background-image: url('/auth_background.png');
+    background-size: cover;
+    background-position: left center;
+    background-repeat: no-repeat;
 }
 
+/* Register card */
 .register-container {
-    width: 350px;
-    margin: 0 auto;
-    padding: 30px;
-    border: 1px solid #dcdcdc;
-    border-radius: 12px;
-    background-color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 520px;
+    height: 440px;
+    margin-left: 50px;
+    margin-top: 140px;
+    padding: 0px 35px 35px 35px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+
+    border-radius: 20px;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
-.register-container h1{
-
+/* Title */
+.register-container h1 {
     text-align: center;
+    margin-bottom: 25px;
 
-    transform: translate(-15px);
-
+    color: #2340a5;
+    font-family: Calibri, sans-serif;
+    font-size: 40px;
 }
 
-.register-container div{
-
-    margin-bottom: 18px;
-
+/* Two-column rows */
+.row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
 }
 
-.register-container label{
+.field {
+    flex: 1;
+}
 
+.field-full {
+    margin-bottom: 15px;
+}
+
+/* Labels */
+.register-container label {
     display: block;
+    margin-bottom: 10px;
 
-    margin-bottom: 5px;
-
+    font-family: Calibri, sans-serif;
+    font-size: 16px;
 }
 
-.register-container input{
+/* Inputs */
+.register-container input {
+    width: 100%;
+    padding: 12px;
 
-    width: 280px;
+    border: 1px solid #cdd6e0;
+    border-radius: 10px;
 
-    border-color: black;
+    box-sizing: border-box;
 
-    border-radius: 5px;
-
-    padding: 5px;
-
+    font-family: Calibri, sans-serif;
+    font-size: 15px;
 }
 
-.register-container button{
-
-    display: block;
-
-    margin: 0 auto 10px auto;
-
-    transform: translate(-16px);
-
-    height: 25px;
-
-    font-size: 17px;
-
+.register-container input:focus {
+    outline: none;
+    border-color: #4f6fff;
+    box-shadow: 0 0 8px rgba(79, 111, 255, 0.25);
 }
 
-.register-container button:hover{
+/* Button */
+.register-container button {
+    width: 100%;
+    height: 45px;
 
-    background-color: #ddd;
+    margin-top: 10px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(
+        to right,
+        #2176ff,
+        #5b4cff
+    );
+
+    color: white;
+    font-size: 16px;
+    font-family: Calibri, sans-serif;
 
     cursor: pointer;
-
+    transition: 0.3s;
 }
 
-p{
+.register-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(91, 76, 255, 0.35);
+}
 
-    display: block;
-
+/* Message */
+p {
     text-align: center;
+    font-family: Calibri, sans-serif;
+    margin-top: 15px;
+}
 
-    transform: translate(-20px);
+/* Links */
+a {
+    color: #2956e8;
+    text-decoration: none;
+}
 
+a:hover {
+    text-decoration: underline;
 }
