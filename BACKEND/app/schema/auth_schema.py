@@ -7,11 +7,6 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=100)
     confirm_password: str = Field(..., min_length=8, max_length=100)
 
-    @model_validator(mode="after")
-    def check_passwords_match(self):
-        if self.password != self.confirm_password:
-            raise ValueError("Passwords do not match")
-        return self
 
 class RegisterResponse(BaseModel):
     user_id: int

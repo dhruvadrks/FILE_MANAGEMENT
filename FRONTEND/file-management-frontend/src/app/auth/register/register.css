@@ -80,7 +80,7 @@
     box-shadow: 0 0 8px rgba(79, 111, 255, 0.25);
 }
 
-/* Button */
+/* Register button */
 .register-container button {
     width: 100%;
     height: 45px;
@@ -124,4 +124,118 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+
+/* ============================= */
+/* Success Popup */
+/* ============================= */
+
+.success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    padding-top: 30px;
+
+    z-index: 1000;
+
+    pointer-events: none;
+}
+
+.success-popup {
+    width: 500px;
+
+    background-color: white;
+
+    padding: 18px 22px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    pointer-events: auto;
+
+    animation: successPopupFade 0.2s ease;
+}
+
+.success-popup p {
+    margin: 0;
+
+    color: #166534;
+
+    font-family: Calibri, sans-serif;
+
+    font-size: 16px;
+}
+
+/* Popup buttons */
+.success-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.success-popup button {
+    width: 70px;
+    height: 38px;
+
+    margin: 0;
+
+    border: none;
+    border-radius: 8px;
+
+    color: white;
+
+    font-family: Calibri, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+/* OK button */
+.success-ok-button {
+    background-color: #2563EB;
+}
+
+.success-ok-button:hover {
+    background-color: #1D4ED8;
+}
+
+/* Cancel button */
+.success-cancel-button {
+    background-color: #6b7280;
+}
+
+.success-cancel-button:hover {
+    background-color: #4b5563;
+}
+
+/* Popup animation */
+@keyframes successPopupFade {
+
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
 }

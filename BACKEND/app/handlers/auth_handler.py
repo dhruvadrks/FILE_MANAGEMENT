@@ -19,6 +19,12 @@ def register_user(request: RegisterRequest, db: Session):
             detail="Email already registered"
         )
 
+    if request.password != request.confirm_password:
+        raise HTTPException(
+            status_code = status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Passwords do not match"
+        )
+
     hashed_password = hash_password(request.password)
 
     new_user = User(
@@ -80,8 +86,9 @@ def forgot_password_user(
     )
 
     if not existing_user:
-        return PasswordResetResponse(
-            message="User not registered "
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not registered"
         )
 
     token = create_reset_token(

@@ -72,3 +72,39 @@
   </p>
 
 </div>
+
+@if(showSuccessPopup) {
+
+  <div class="success-overlay">
+
+    <div class="success-popup">
+
+      <p>
+        Register successful. Redirect to login page.
+      </p>
+
+      <div class="success-buttons">
+
+        <button
+          type="button"
+          class="success-ok-button"
+          (click)="closeSuccessPopup()"
+        >
+          OK
+        </button>
+
+        <button
+          type="button"
+          class="success-cancel-button"
+          (click)="cancelSuccessPopup()"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

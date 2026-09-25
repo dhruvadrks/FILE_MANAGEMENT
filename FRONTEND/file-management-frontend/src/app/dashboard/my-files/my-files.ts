@@ -37,6 +37,16 @@ export class MyFiles implements OnInit {
   expiresIn: number | null = null
   expiresUnit = ''
 
+  showDeletePopup = false
+  selectedDeleteFile: File | null = null
+
+  showRenamePopup = false
+  selectedRenameFile: File | null = null
+  newFileName = ''
+
+  showMessage = false
+  message = ''
+
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef
@@ -174,10 +184,21 @@ export class MyFiles implements OnInit {
     ).subscribe({
       next: response => {
         file.is_favorite = response.is_favorite
-        this.cdr.detectChanges()
+        if(response.is_favorite === true){
+          this.showMessagePopup(`${file.file_name} Marked as Favorite`)
+          this.cdr.detectChanges()
+          return
+        }
+
+        if(response.is_favorite === false){
+          this.showMessagePopup(`${file.file_name} Unmarked as Favorite`)
+          this.cdr.detectChanges()
+          return
+        }
+
       },
       error: error => {
-        console.log(error)
+        this.showMessagePopup(`Failed to mark ${file.file_name} as Favorite`)
       }
     })
   }
@@ -218,11 +239,11 @@ export class MyFiles implements OnInit {
     }
 
     if (action === 'rename') {
-      this.renameFile(file)
+      this.openRenamePopup(file)
     }
 
     if (action === 'delete') {
-      this.deleteFile(file)
+      this.openDeletePopup(file)
     }
 
     if (action === 'share') {
@@ -269,72 +290,128 @@ export class MyFiles implements OnInit {
     })
   }
 
-  renameFile(file: File) {
+  openRenamePopup(file: File) {
 
-    const newFileName = prompt(
-      'Enter new file name',
-      file.file_name
-    )
+    this.selectedRenameFile = file
+    this.newFileName = file.file_name
+    this.showRenamePopup = true
 
-    if (!newFileName) {
+  }
+
+  closeRenamePopup() {
+
+    this.showRenamePopup = false
+    this.selectedRenameFile = null
+    this.newFileName = ''
+
+  }
+
+  renameFile() {
+
+    if (!this.selectedRenameFile) {
       return
     }
 
     const token = localStorage.getItem('access_token')
 
+    const request = {
+      new_file_name: this.newFileName
+    }
+
     this.http.patch(
-      `http://127.0.0.1:8000/files/${file.file_id}/rename`,
-      {
-        new_file_name: newFileName
-      },
+      `http://127.0.0.1:8000/files/${this.selectedRenameFile.file_id}/rename`,
+      request,
       {
         headers: {
           Authorization: `Bearer ${token}`
         }
       }
     ).subscribe({
-      next: () => {
-        file.file_name = newFileName
-        this.cdr.detectChanges()
+
+      next: response => {
+
+        this.files = this.files.map(file => {
+
+          if (file.file_id === this.selectedRenameFile?.file_id) {
+            file.file_name = this.newFileName
+          }
+
+          return file
+
+        })
+
+        this.closeRenamePopup()
+
+        this.showMessagePopup('File renamed successfully')
+
       },
+
       error: error => {
-        console.log(error)
+
+        this.closeRenamePopup()
+
+        this.showMessagePopup(
+          error.error?.detail || 'Failed to rename file'
+        )
+
       }
+
     })
   }
 
-  deleteFile(file: File) {
+  openDeletePopup(file: File) {
 
-    const confirmdelete = confirm(
-      `Are you sure you want to delete "${file.file_name}"`
-    )
+    this.selectedDeleteFile = file
+    this.showDeletePopup = true
 
-    if (!confirmdelete) {
+  }
+
+  closeDeletePopup() {
+
+    this.showDeletePopup = false
+    this.selectedDeleteFile = null
+
+  }
+
+  deleteFile() {
+
+    if (!this.selectedDeleteFile) {
       return
     }
 
     const token = localStorage.getItem('access_token')
 
+    const fileId = this.selectedDeleteFile.file_id
+
     this.http.delete(
-      `http://127.0.0.1:8000/files/${file.file_id}/delete`,
+      `http://127.0.0.1:8000/files/${fileId}/delete`,
       {
         headers: {
           Authorization: `Bearer ${token}`
         }
       }
     ).subscribe({
-      next: () => {
+
+      next: response => {
 
         this.files = this.files.filter(
-          currentFile => currentFile.file_id !== file.file_id
+          file => file.file_id !== fileId
         )
 
-        this.cdr.detectChanges()
+        this.closeDeletePopup()
+
+        this.showMessagePopup('File deleted successfully')
 
       },
+
       error: error => {
-        console.log(error)
+
+        this.closeDeletePopup()
+
+        this.showMessagePopup('Failed to delete file')
+
       }
+
     })
   }
 
@@ -349,6 +426,9 @@ export class MyFiles implements OnInit {
 
     this.showSharePopup = false
     this.selectedFile = null
+    this.shareEmails = ''
+    this.expiresIn = null
+    this.expiresUnit = ''
     this.cdr.detectChanges()
 
   }
@@ -379,8 +459,10 @@ export class MyFiles implements OnInit {
       request.expires_unit = this.expiresUnit
     }
 
+    const fileId = this.selectedFile.file_id
+
     this.http.post<{ share_link: string }>(
-      `http://127.0.0.1:8000/share/${this.selectedFile.file_id}`,
+      `http://127.0.0.1:8000/share/${fileId}`,
       request,
       {
         headers: {
@@ -388,17 +470,41 @@ export class MyFiles implements OnInit {
         }
       }
     ).subscribe({
+
       next: response => {
 
-        navigator.clipboard.writeText(response.share_link)
+        navigator.clipboard
+          .writeText(response.share_link)
+          .catch(error => console.log(error))
+        this.closeSharePopup()
+        this.showMessagePopup('Share link created successfully')
+      },
+
+      error: error => {
 
         this.closeSharePopup()
 
-      },
-      error: error => {
-        console.log(error)
+        this.showMessagePopup('Failed to create share link')
+
       }
+
     })
+  }
+
+  showMessagePopup(text: string) {
+
+    this.message = text
+    this.showMessage = true
+
+    this.cdr.detectChanges()
+
+    setTimeout(() => {
+
+      this.showMessage = false
+
+      this.cdr.detectChanges()
+
+    }, 3000)
   }
 
 }

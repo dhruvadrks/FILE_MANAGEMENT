@@ -1,8 +1,7 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MyFiles } from './my-files/my-files';
-
 
 @Component({
   selector: 'app-dashboard',
@@ -16,8 +15,12 @@ export class Dashboard {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  showMessage = false
+  message = ''
 
   UploadFile(event: Event) {
 
@@ -47,20 +50,40 @@ export class Dashboard {
 
       next: response => {
 
-        alert('File uploaded successfully')
+        input.value = ''
+
+        this.showMessagePopup(`${file.name} uploaded successfully`)
 
         const myfiles = this.routerOutlet.component as MyFiles
 
         myfiles.getFiles()
-      
+
       },
 
       error: error => {
 
-        console.log(error)
+        input.value = ''
+
+        this.showMessagePopup('File Upload Failed. Try again')
 
       }
 
     })
+  }
+
+  showMessagePopup(text: string) {
+
+    this.message = text
+    this.showMessage = true
+
+    this.cdr.detectChanges()
+
+    setTimeout(() => {
+
+      this.showMessage = false
+
+      this.cdr.detectChanges()
+
+    }, 3000)
   }
 }

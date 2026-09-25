@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute,Router } from '@angular/router';
 
 interface PasswordResetResponse {
   message: string;
@@ -23,10 +23,13 @@ export class ResetPassword {
   token = '';
   message=''
 
+  showSuccessPopup = false
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -36,6 +39,21 @@ export class ResetPassword {
   }
 
   reset_password() {
+
+    if(this.new_password.length < 8){
+      this.message = "Password must be at least 8 characters long"
+      
+      return
+    }
+    if(this.confirm_password.length < 8){
+      this.message = 'Confirm password must be at least 8 characters long'
+      return
+    }
+    if(this.new_password !== this.confirm_password){
+      this.message = "Passwords dont match"
+      return
+    }
+
     this.http.post<PasswordResetResponse>(
       'http://127.0.0.1:8000/auth/reset-password',
       {
@@ -46,7 +64,12 @@ export class ResetPassword {
       }
     ).subscribe({next:response=>{
       this.message = response.message
+      this.showSuccessPopup = true
       this.cdr.detectChanges()
+
+      setTimeout(() => {
+        this.router.navigate(['/login'])
+      },1500)
     },
     error:error =>{
       this.message = error.error.detail

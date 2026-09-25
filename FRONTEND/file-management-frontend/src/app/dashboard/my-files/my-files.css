@@ -201,3 +201,236 @@ table {
     margin-top: 15px;
 }
 
+/* Delete confirmation popup */
+
+.delete-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.delete-popup {
+    width: 450px;
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: popupFade 0.3s ease;
+}
+
+.delete-popup h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.delete-popup p {
+    margin-top: 15px;
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.delete-popup strong {
+    color: #111827;
+    word-break: break-word;
+}
+
+.delete-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin-top: 28px;
+}
+
+.cancel-delete-button,
+.confirm-delete-button {
+    min-width: 100px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.cancel-delete-button {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.cancel-delete-button:hover {
+    background-color: #f3f4f6;
+}
+
+.confirm-delete-button {
+    background-color: #dc2626;
+    border: none;
+    color: white;
+}
+
+.confirm-delete-button:hover {
+    background-color: #b91c1c;
+}
+
+@keyframes popupFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.rename-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.rename-popup {
+    width: 450px;
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: popupFade 0.3s ease;
+}
+
+.rename-popup h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.rename-popup p {
+    margin-top: 15px;
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.rename-popup strong {
+    color: #111827;
+    word-break: break-word;
+}
+
+.rename-popup input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 40px;
+    padding: 8px 12px;
+    margin-top: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+.rename-popup input:focus {
+    border-color: #2563EB;
+}
+
+.rename-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin-top: 28px;
+}
+
+.cancel-rename-button,
+.confirm-rename-button {
+    min-width: 100px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.cancel-rename-button {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.cancel-rename-button:hover {
+    background-color: #f3f4f6;
+}
+
+.confirm-rename-button {
+    background-color: #2563EB;
+    border: none;
+    color: white;
+}
+
+.confirm-rename-button:hover {
+    background-color: #1D4ED8;
+}
+
+.message-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 30px;
+    z-index: 1100;
+    pointer-events: none;
+}
+
+.message-popup {
+    width: 450px;
+    background-color: white;
+    padding: 18px 22px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    animation: messageFade 0.2s ease;
+}
+
+.message-popup p {
+    margin: 0;
+    color: #166534;
+    font-family: Calibri, sans-serif;
+    font-size: 16px;
+}
+
+@keyframes messageFade {
+
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}

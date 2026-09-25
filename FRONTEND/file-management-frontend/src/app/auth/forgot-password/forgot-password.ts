@@ -29,12 +29,21 @@ export class ForgotPassword {
       }
     ).subscribe({next:response=>{
       this.message = response.message
+      this.email = ''
       this.cdr.detectChanges()
   },
   error:error => {
-    this.message = error.error.detail;
-    this.cdr.detectChanges();
+    if(error.status === 422){
+      this.message = 'Enter valid email address'
+      this.cdr.detectChanges()
+      return
+    }
+    
+    if(error.status === 404){
+      this.message = 'User not registered'
+      this.cdr.detectChanges()
+    }
   }
-      })
+  })
   }
 }

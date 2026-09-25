@@ -31,6 +31,19 @@ export class Login {
   ) {}
 
   login() {
+
+    if(this.email === ''){
+      this.message = "Please enter a valid email address"
+      this.cdr.detectChanges()
+      return
+    }
+
+    if(this.password === ''){
+      this.message = "Password is required"
+      this.cdr.detectChanges()
+      return
+    }
+
     this.http.post<LoginResponse>(
       'http://127.0.0.1:8000/auth/login',
       {
@@ -44,7 +57,23 @@ export class Login {
       },
 
       error: error => {
-        this.message = error.error.detail;
+
+        if(error.error.detail === "User not found Register before Login"){
+          this.password = ''
+        }
+        
+        if(error.error.detail === "Incorrect Password"){
+          this.password = ''
+        }
+
+        if(error.status === 422){
+          this.message = "Please enter valid login details"
+          this.cdr.detectChanges()
+          return
+        }
+
+        this.message = error.error.detail
+
         this.cdr.detectChanges();
       }
     });

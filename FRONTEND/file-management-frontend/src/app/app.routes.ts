@@ -8,6 +8,11 @@ import { MyFiles } from './dashboard/my-files/my-files';
 
 export const routes: Routes = [
     {
+        path : '',
+        redirectTo : 'login',
+        pathMatch : 'full'
+    },
+    {
         path : 'login',
         component : Login
     },
