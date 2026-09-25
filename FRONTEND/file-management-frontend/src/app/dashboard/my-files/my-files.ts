@@ -110,17 +110,17 @@ export class MyFiles implements OnInit {
       ).subscribe({
         next: response => {
           this.files = [response]
+          
           this.cdr.detectChanges()
         },
         error: error => {
 
           if (error.status === 404) {
-            alert(`"${this.searchText}" No such file found`)
+            this.showMessagePopup(`No matching files found for "${this.searchText}"`)
+            this.cdr.detectChanges()
             this.getFiles()
             return
           }
-
-          console.log(error)
         }
       })
 
@@ -144,7 +144,8 @@ export class MyFiles implements OnInit {
           this.cdr.detectChanges()
         },
         error: error => {
-          console.log(error)
+            this.showMessagePopup(`No matching files found for "${this.searchText}"`)
+            this.cdr.detectChanges()
         }
       })
 
@@ -283,9 +284,11 @@ export class MyFiles implements OnInit {
 
         URL.revokeObjectURL(fileurl)
 
+        this.showMessagePopup(`${file.file_name} downloaded successfully`)
+
       },
       error: error => {
-        console.log(error)
+        this.showMessagePopup(`Failed to download ${file.file_name} Please try again`)
       }
     })
   }

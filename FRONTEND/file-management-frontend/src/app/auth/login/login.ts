@@ -67,7 +67,7 @@ export class Login {
         }
 
         if(error.status === 422){
-          this.message = "Please enter valid login details"
+          this.message = "Please enter valid Email Address"
           this.cdr.detectChanges()
           return
         }
