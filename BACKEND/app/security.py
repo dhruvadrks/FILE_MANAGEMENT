@@ -1,6 +1,4 @@
 import os
-import hashlib
-import hmac
 from datetime import datetime, timedelta, timezone
 import jwt
 from dotenv import load_dotenv
@@ -12,16 +10,13 @@ from app.database.database import get_db
 from app.database.models import User
 
 
-
 load_dotenv()
 
 secret_key = os.getenv("secret_key")
 
 ALGORITHM = "HS256"
 
-reset_token_expiration_minutes = 5
 access_token_expiration_minutes = 300
-
 
 password_hash = PasswordHash.recommended()
 
@@ -93,7 +88,6 @@ def get_current_user(
     return existing_user
 
 
-
 def create_access_token(
     user_id: int,
     email: str
@@ -119,63 +113,3 @@ def create_access_token(
     )
 
     return token
-
-
-
-def create_reset_token(
-    user_id: int,
-    email: str,
-    password_hashed: str
-) -> str:
-
-    password_fingerprint = hmac.new(
-        secret_key.encode(),
-        password_hashed.encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-    expire = (
-        datetime.now(timezone.utc)
-        + timedelta(
-            minutes=reset_token_expiration_minutes
-        )
-    )
-
-    payload = {
-        "user_id": user_id,
-        "email": email,
-        "password_fingerprint": password_fingerprint,
-        "exp": expire
-    }
-
-    token = jwt.encode(
-        payload,
-        secret_key,
-        algorithm=ALGORITHM
-    )
-
-    return token
-
-
-def verify_reset_token(token: str) -> dict:
-
-    try:
-        payload = jwt.decode(
-            token,
-            secret_key,
-            algorithms=[ALGORITHM]
-        )
-
-        return payload
-
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired"
-        )
-
-    except jwt.InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
-        )

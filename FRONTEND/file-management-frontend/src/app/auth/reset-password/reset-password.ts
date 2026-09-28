@@ -25,6 +25,9 @@ export class ResetPassword {
 
   showSuccessPopup = false
 
+  tokenValid = false;
+  checkingToken = false;
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -35,7 +38,36 @@ export class ResetPassword {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.token = params['token'];
+      if(!this.token){
+        this.message = "Invalid reset Link"
+      }
+      this.checkingToken=true
+      this.validateToken()
     });
+  }
+
+  validateToken(){
+    this.http.get<PasswordResetResponse>(
+      'http://127.0.0.1:8000/auth/reset-password/validate',
+      {
+        params: {
+          token: this.token
+        }
+      }
+    ).subscribe({
+      next:response =>{
+        this.tokenValid = true
+        this.checkingToken = false
+        console.log(response.message)
+        this.cdr.detectChanges()
+      },
+      error:error => {
+        this.tokenValid = false
+        this.checkingToken = false
+        this.message = error.error.detail
+        this.cdr.detectChanges()
+      }
+    })
   }
 
   reset_password() {

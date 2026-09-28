@@ -1,9 +1,11 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta, timezone
+import secrets
+from app.database.redis_client import redis_client
 from app.database.models import User
 from app.schema.auth_schema import RegisterRequest,LoginRequest,ForgotPasswordRequest,PasswordResetResponse,ResetPasswordRequest
-from app.security import hash_password, verify_password, create_reset_token,create_access_token,verify_reset_token,hmac,secret_key
-import hashlib
+from app.security import hash_password, verify_password,create_access_token
 
 def register_user(request: RegisterRequest, db: Session):
 
@@ -86,107 +88,119 @@ def forgot_password_user(
     )
 
     if not existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not registered"
+        return PasswordResetResponse(
+            message = "Email not registered"
         )
 
-    token = create_reset_token(
-        user_id=existing_user.user_id,
-        email=existing_user.email,
-        password_hashed=existing_user.password_hashed
+    token = secrets.token_urlsafe(16)
+
+    user_id = existing_user.user_id
+
+    user_key = f"reset:user:{user_id}"
+    token_key = f"reset:{token}"
+
+    old_token = redis_client.get(user_key)
+
+    if old_token:
+        redis_client.delete(f"reset:{old_token}")
+
+    redis_client.set(
+        user_key,
+        token,
+        ex = 300
     )
 
-    reset_link = (
-        f"http://localhost:4200/reset-password?token={token}"
+    redis_client.set(
+        token_key,user_id,
+        ex = 300
     )
 
-    print(
-        f"Password reset link for "
-        f"{existing_user.email}: {reset_link}"
-    )
+    reset_link = f"http://localhost:4200/reset-password?token={token}"
+
+    print(reset_link)
 
     return PasswordResetResponse(
-        message="password reset link sent to registered email address"
+        message=reset_link
     )
-
-
+    
 def reset_password_user(
     request: ResetPasswordRequest,
     db: Session
 ):
 
-    if request.new_password != request.confirm_password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Passwords do not match"
-        )
-
-    try:
-        payload = verify_reset_token(request.token)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-
-    token_user_id = payload.get("user_id")
-
-    if token_user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid token"
-        )
-
-    existing_user = (
-        db.query(User)
-        .filter(User.user_id == token_user_id)
-        .first()
+    user_id = redis_client.get(
+        f"reset:{request.token}"
     )
 
-    if not existing_user:
+    if not user_id:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reset Link expired"
+        )
+
+    user_id = int(user_id)
+
+    user = (
+        db.query(User)
+        .filter(User.user_id == user_id)
+        .with_for_update()
+        .first()
+    )
+    if not user:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
 
-    token_email = payload.get("email")
+    token_user_id = redis_client.get(
+        f"reset:{request.token}"
+    )
 
-    if token_email != existing_user.email:
+    if not token_user_id:
+        db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email does not match token"
+            status_code=status.HTTP_410_GONE,
+            detail="Reset link expired or already used"
         )
 
-    if existing_user.email != request.email:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email does not match user"
-        )
+    if int(token_user_id) != user_id:
+        db.rollback()
+        raise HTTPException (
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized"
+        ) 
+    new_hash_password = hash_password(
+        request.new_password
+    )
 
-    current_fingerprint = hmac.new(
-        secret_key.encode(),
-        existing_user.password_hashed.encode(),
-        hashlib.sha256
-    ).hexdigest()
+    user.password_hashed = new_hash_password
 
-    token_fingerprint = payload.get("password_fingerprint")
-
-    if not hmac.compare_digest(
-        current_fingerprint,
-        token_fingerprint
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password has been changed since the token was issued"
-        )
-
-    new_password = hash_password(request.new_password)
-
-    existing_user.password_hashed = new_password
+    redis_client.delete(
+        f"reset:{request.token}"
+    )
+    redis_client.delete(
+        f"reset:user:{user_id}"
+    )
 
     db.commit()
 
     return PasswordResetResponse(
-        message="Password reset successful"
+        message="Password changed successfully"
+    )
+
+def validate_reset_token(token:str):
+
+    user_id = redis_client.get(
+        f"reset:{token}"
+    )
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reset link is invalid or expired"
+        )
+
+    return PasswordResetResponse(
+        message="Reset link is valid"
     )

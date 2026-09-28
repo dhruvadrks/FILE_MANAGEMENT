@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.schema.auth_schema import ForgotPasswordRequest, LoginResponse, PasswordResetResponse, RegisterRequest, RegisterResponse, LoginRequest, ResetPasswordRequest
-from app.handlers.auth_handler import register_user,login_user,forgot_password_user,reset_password_user
+from app.handlers.auth_handler import register_user,login_user,forgot_password_user,reset_password_user,validate_reset_token
 
 
 router = APIRouter(
@@ -77,3 +77,8 @@ def reset_password(
 ):
 
     return reset_password_user(request, db)
+
+@router.get("/reset-password/validate",response_model=PasswordResetResponse)
+def validate_reset_password_token(token:str):
+
+    return validate_reset_token(token)
