@@ -89,7 +89,7 @@ def create_share_handler(
                 email=str(email)
             )
         
-        db.add(permission)
+            db.add(permission)
 
     owner_permission = Permission(
     share_id = new_share.share_id,

@@ -22,6 +22,8 @@ export class Dashboard {
   showMessage = false
   message = ''
 
+  activepage = 'files'
+
   UploadFile(event: Event) {
 
     const input = event.target as HTMLInputElement
@@ -69,6 +71,20 @@ export class Dashboard {
       }
 
     })
+  }
+
+  showAllFiles(){
+    this.router.navigate(['/dashboard/files'])
+    const myfiles = this.routerOutlet.component as MyFiles
+    myfiles.showOnlyFavorites = false
+    this.activepage = 'files'
+  }
+
+  showFavorites(){
+    this.router.navigate(['/dashboard/files/favorites'])
+    const myfiles = this.routerOutlet.component as MyFiles
+    myfiles.showOnlyFavorites = true
+    this.activepage = 'favorites'
   }
 
   showMessagePopup(text: string) {

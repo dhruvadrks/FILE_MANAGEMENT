@@ -28,15 +28,18 @@
                 routerLink="/dashboard/files"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
+                [class.active]="activepage === 'files'"
+                (click)="showAllFiles()"
             >
                 My Files
             </button>
 
             <button
                 class="sidebar-button"
-                routerLink="/dashboard/favorites"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
+                [class.active]="activepage === 'favorites'"
+                (click) = "showFavorites()"
             >
                 Favorites
             </button>

@@ -42,8 +42,6 @@
 
 </div>
 
-<h2>My Files</h2>
-
 <table class="file-table">
 
     <thead>
@@ -60,6 +58,7 @@
     <tbody>
 
         @for (file of files; track file.file_id) {
+            @if (!showOnlyFavorites || file.is_favorite){
 
             <tr>
 
@@ -131,6 +130,7 @@
                 </td>
 
             </tr>
+        }
 
         }
 

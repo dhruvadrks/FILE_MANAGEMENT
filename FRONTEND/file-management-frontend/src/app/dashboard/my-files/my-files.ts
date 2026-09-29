@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 interface File {
   file_id: number;
@@ -47,12 +48,18 @@ export class MyFiles implements OnInit {
   showMessage = false
   message = ''
 
+  showOnlyFavorites = false
+
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
+    if (this.route.snapshot.routeConfig?.path === 'files/favorites') {
+      this.showOnlyFavorites = true
+    }
     this.getFiles()
   }
 
@@ -110,7 +117,6 @@ export class MyFiles implements OnInit {
       ).subscribe({
         next: response => {
           this.files = [response]
-          
           this.cdr.detectChanges()
         },
         error: error => {

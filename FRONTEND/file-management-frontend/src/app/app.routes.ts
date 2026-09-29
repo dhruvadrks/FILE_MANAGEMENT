@@ -37,6 +37,10 @@ export const routes: Routes = [
             {
                 path: 'files',
                 component: MyFiles
+            },
+            {
+                path: 'files/favorites',
+                component: MyFiles
             }
         ]
     },
