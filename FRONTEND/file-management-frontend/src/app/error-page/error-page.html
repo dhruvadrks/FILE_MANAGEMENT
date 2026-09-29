@@ -1,1 +1,21 @@
-<p>error-page works!</p>
+<div class="error-page">
+
+  <div class="error-card">
+
+    <div class="error-icon">
+      !
+    </div>
+
+    <h1>{{ title }}</h1>
+
+    <p>{{ message }}</p>
+
+    @if(returnUrl) {
+      <button (click)="goToLogin()">
+        Go to Login
+      </button>
+    }
+
+  </div>
+
+</div>

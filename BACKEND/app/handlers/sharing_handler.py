@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from app.database.models import Sharelink, Permission, File
+from app.database.models import Sharelink, Permission, File, User
 from app.schema.sharing_schema import ShareRequest
 
 def create_share_handler(
@@ -14,6 +14,13 @@ def create_share_handler(
     user_id: int,
     db: Session
 ):
+
+    owner = (
+        db.query(User)
+        .filter(User.user_id == user_id)
+        .first()
+    ) 
+    
     file = (
         db.query(File)
         .filter(
@@ -76,15 +83,24 @@ def create_share_handler(
     db.flush()
 
     for email in request.emails:
-        permission = Permission(
-            share_id=new_share.share_id,
-            email=str(email)
-        )
+        if str(email) != owner.email:
+            permission = Permission(
+                share_id=new_share.share_id,
+                email=str(email)
+            )
+        
         db.add(permission)
+
+    owner_permission = Permission(
+    share_id = new_share.share_id,
+    email = owner.email
+    )
+
+    db.add(owner_permission)
 
     db.commit()
 
-    share_link = f"http://localhost:8000/share/{share_token}"
+    share_link = f"http://localhost:4200/share/{share_token}"
 
     return {
         "share_id": new_share.share_id,

@@ -34,7 +34,6 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str
-    email: EmailStr
 
     new_password: str = Field(
         ...,

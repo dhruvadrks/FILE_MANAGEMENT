@@ -5,6 +5,8 @@ import { Register } from './auth/register/register';
 import { ResetPassword } from './auth/reset-password/reset-password';
 import { Dashboard } from './dashboard/dashboard';
 import { MyFiles } from './dashboard/my-files/my-files';
+import { ErrorPage } from './error-page/error-page';
+import { Share } from './share/share';
 
 export const routes: Routes = [
     {
@@ -37,5 +39,13 @@ export const routes: Routes = [
                 component: MyFiles
             }
         ]
+    },
+    {
+        path: 'error',
+        component: ErrorPage
+    },
+    {
+        path: 'share/:token',
+        component: Share
     }
 ];

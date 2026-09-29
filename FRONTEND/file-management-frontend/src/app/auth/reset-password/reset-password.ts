@@ -16,7 +16,6 @@ interface PasswordResetResponse {
 
 export class ResetPassword {
 
-  email = '';
   new_password = '';
   confirm_password = '';
 
@@ -25,8 +24,6 @@ export class ResetPassword {
 
   showSuccessPopup = false
 
-  tokenValid = false;
-  checkingToken = false;
 
   constructor(
     private http: HttpClient,
@@ -37,12 +34,20 @@ export class ResetPassword {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
+
       this.token = params['token'];
-      if(!this.token){
-        this.message = "Invalid reset Link"
+
+      if (!this.token) {
+        this.router.navigate(['/error'], {
+          queryParams: {
+            title: 'Invalid Reset Link',
+            message: 'The reset link is invalid.'
+          }
+        });
+
+        return;
       }
-      this.checkingToken=true
-      this.validateToken()
+      this.validateToken();
     });
   }
 
@@ -56,16 +61,14 @@ export class ResetPassword {
       }
     ).subscribe({
       next:response =>{
-        this.tokenValid = true
-        this.checkingToken = false
-        console.log(response.message)
-        this.cdr.detectChanges()
       },
       error:error => {
-        this.tokenValid = false
-        this.checkingToken = false
-        this.message = error.error.detail
-        this.cdr.detectChanges()
+        this.router.navigate(['/error'],{
+          queryParams: {
+            title: 'Invalid Reset Link',
+            message: error.error?.detail || 'The Reset link is invalid or expired'
+          }
+        })
       }
     })
   }
@@ -90,7 +93,6 @@ export class ResetPassword {
       'http://127.0.0.1:8000/auth/reset-password',
       {
         token:this.token,
-        email:this.email,
         new_password:this.new_password,
         confirm_password:this.confirm_password
       }

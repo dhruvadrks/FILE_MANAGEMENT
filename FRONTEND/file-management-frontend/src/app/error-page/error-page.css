@@ -1,0 +1,56 @@
+.error-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(70, 64, 64);
+  font-family: Calibri, sans-serif;
+}
+
+.error-card {
+  width: 420px;
+  padding: 40px;
+  background-color: rgb(212, 193, 193);
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 35px rgba(110, 6, 6, 0.12);
+}
+
+.error-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background-color: #bebbbb;
+  color: #dc2626;
+  font-size: 38px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-card h1 {
+  margin-bottom: 12px;
+  color: #172554;
+}
+
+.error-card p {
+  margin-bottom: 25px;
+  color: #64748b;
+  font-size: 16px;
+}
+
+.error-card button {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.error-card button:hover {
+  background-color: #1d4ed8;
+}
