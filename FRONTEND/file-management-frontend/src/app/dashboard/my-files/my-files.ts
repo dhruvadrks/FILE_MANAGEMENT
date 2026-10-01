@@ -13,6 +13,17 @@ interface File {
   is_indexed: boolean;
 }
 
+interface ShareLink {
+  share_id: number;
+  file_id: number;
+  file_name: string;
+  emails: string[];
+  created_at: string;
+  share_token: string;
+  expires_at: string;
+  status: boolean;
+}
+
 interface FavoriteResponse {
   file_id: number;
   file_name: string;
@@ -35,8 +46,10 @@ export class MyFiles implements OnInit {
   showSharePopup = false
   selectedFile: File | null = null
   shareEmails = ''
-  expiresIn: number | null = null
-  expiresUnit = ''
+
+  shareExpiryDate = ''
+  useDefaultExpiry = true
+  minExpiryDate = ''
 
   showDeletePopup = false
   selectedDeleteFile: File | null = null
@@ -57,10 +70,24 @@ export class MyFiles implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.setMinExpiryDate()
+
     if (this.route.snapshot.routeConfig?.path === 'files/favorites') {
       this.showOnlyFavorites = true
     }
     this.getFiles()
+  }
+
+  setMinExpiryDate(){
+    const now = new Date()
+
+    const year = now.getFullYear()
+    const month = String(now.getMonth()+1).padStart(2,'0')
+    const day = String(now.getDate()).padStart(2,'0')
+    const hours = String(now.getHours()).padStart(2,'0')
+    const minutes = String(now.getMinutes()).padStart(2,'0')
+
+    this.minExpiryDate = `${year}-${month}-${day}T${hours}:${minutes}`
   }
 
   getFiles() {
@@ -391,6 +418,7 @@ export class MyFiles implements OnInit {
     const token = localStorage.getItem('access_token')
 
     const fileId = this.selectedDeleteFile.file_id
+    const filename = this.selectedFile?.file_name
 
     this.http.delete(
       `http://127.0.0.1:8000/files/${fileId}/delete`,
@@ -409,7 +437,7 @@ export class MyFiles implements OnInit {
 
         this.closeDeletePopup()
 
-        this.showMessagePopup('File deleted successfully')
+        this.showMessagePopup(`Successfully Deleted ${filename}`)
 
       },
 
@@ -417,7 +445,7 @@ export class MyFiles implements OnInit {
 
         this.closeDeletePopup()
 
-        this.showMessagePopup('Failed to delete file')
+        this.showMessagePopup(`Failed to delete ${filename}`)
 
       }
 
@@ -427,6 +455,8 @@ export class MyFiles implements OnInit {
   openSharePopup(file: File) {
 
     this.selectedFile = file
+    this.shareExpiryDate = ''
+    this.useDefaultExpiry = true
     this.showSharePopup = true
 
   }
@@ -436,8 +466,9 @@ export class MyFiles implements OnInit {
     this.showSharePopup = false
     this.selectedFile = null
     this.shareEmails = ''
-    this.expiresIn = null
-    this.expiresUnit = ''
+
+    this.shareExpiryDate = ''
+    this.useDefaultExpiry = false
     this.cdr.detectChanges()
 
   }
@@ -457,18 +488,21 @@ export class MyFiles implements OnInit {
 
     const request: {
       emails: string[]
-      expires_in?: number
-      expires_unit?: string
+      expires_at?:string
     } = {
       emails: emails
     }
 
-    if (this.expiresIn !== null) {
-      request.expires_in = this.expiresIn
-      request.expires_unit = this.expiresUnit
+    if(this.shareExpiryDate === ''){}
+    else{
+        request.expires_at = new Date(
+          this.shareExpiryDate
+        ).toISOString()
     }
+    
 
     const fileId = this.selectedFile.file_id
+    const filename = this.selectedFile?.file_name
 
     this.http.post<{ share_link: string }>(
       `http://127.0.0.1:8000/share/${fileId}`,
@@ -481,19 +515,19 @@ export class MyFiles implements OnInit {
     ).subscribe({
 
       next: response => {
-
+      
         navigator.clipboard
           .writeText(response.share_link)
           .catch(error => console.log(error))
         this.closeSharePopup()
-        this.showMessagePopup('Share link created successfully')
+        this.showMessagePopup(`Share link created successfully for ${filename}`)
       },
 
       error: error => {
 
         this.closeSharePopup()
 
-        this.showMessagePopup('Failed to create share link')
+        this.showMessagePopup(`Failed to create share link for ${filename}`)
 
       }
 

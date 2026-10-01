@@ -10,6 +10,8 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
+@router.get("")
+
 @router.post(
     "/register",
     response_model=RegisterResponse,

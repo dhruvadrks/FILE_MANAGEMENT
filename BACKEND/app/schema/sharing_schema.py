@@ -1,8 +1,11 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import List,Literal
+from datetime import datetime
 
 class ShareRequest(BaseModel):
     emails:List[EmailStr]
-    expires_in: int | None = Field(default=None, gt=0)
-    expires_unit: Literal["minutes", "hours", "days", "years"] | None = None
+    expires_at:datetime | None = None
 
+class ShareChange(BaseModel):
+    emails:List[EmailStr]
+    expires_at:datetime | None = None

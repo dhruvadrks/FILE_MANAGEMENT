@@ -27,8 +27,8 @@ export class ForgotPassword {
       {
         email:this.email
       }
-    ).subscribe({next:response=>{
-      this.message = response.message
+    ).subscribe({next:response=> {
+      this.message = 'Password Reset Link Sent to Registered Email'
       this.email = ''
       this.cdr.detectChanges()
   },

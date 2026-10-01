@@ -1,0 +1,234 @@
+<div class="share-links-page">
+
+    <table class="share-table">
+
+        <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Created at</th>
+                <th>Expires at</th>
+                <th>Settings</th>
+                <th>Revoke</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @for (share of sharelinks; track share.share_id) {
+
+                <tr>
+
+                    <td
+                    class="file-name"
+                    (click)="ViewFile(share)"
+                    >
+                        {{ share.file_name }}
+                    </td>
+
+                    <td>
+                        {{share.created_at | date:'dd-MM-yyyy'}}
+                    </td>
+
+                    <td>
+                        {{ share.expires_at | date:'dd-MM-yyyy' }}
+                    </td>
+
+                    <td>
+                        <button
+                        (click)="openSettingPopup(share)"
+                        >
+                            ⚙
+                        </button>
+                    </td>
+
+                    <td>
+                        <button
+                        class="delete-button"
+                        (click)="openRevokePopup(share)"
+                        >
+                            🗑
+                        </button>
+                    </td>
+
+                </tr>
+
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+@if(showRevokePopup){
+    <div class="delete-overlay">
+        <div class="delete-popup">
+            <h2>Revoke Link</h2>
+            <p>
+                Are you sure you want to Revoke Share Link for
+                <strong>{{SelectedShareLink?.file_name}}</strong> 
+            </p>
+            <div class="delete-buttons">
+                <button 
+                    type="button"
+                    class="confirm-delete-button"
+                    (click)="revokeShareLink()"
+                >
+                    Revoke
+                </button>
+
+                <button
+                    type="button"
+                    class="cancel-delete-button"
+                    (click)="closeRevokePopup()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+        </div>
+    </div>
+}
+
+@if(showSettingsPopup){ 
+    <div class="settings-overlay"> 
+ 
+        <div class="settings-popup"> 
+ 
+            <h2>Share Settings</h2> 
+ 
+            <p> 
+                File: 
+                <strong>{{SelectedShareLink?.file_name}}</strong> 
+            </p>
+            
+            <div class="share-link-section">
+
+                <h3>Share Link</h3>
+
+                <div class="share-link-row">
+
+                    <input
+                        type="text"
+                        [value] = "'http://localhost:4200/share/' + SelectedShareLink?.share_token"
+                        readonly
+                    >
+
+                    <button
+                        type="button"
+                        class="copy-link-button"
+                        (click)="copyShareLink(SelectedShareLink!)"
+                        title="Copy share link"
+                    >
+                        📋
+                    </button>
+                </div>
+
+            </div>
+ 
+            <h3>People with access</h3> 
+ 
+            @for (email of SelectedShareLink?.emails ?? []; track email) { 
+                <div class="permission-row"> 
+                    <span>{{email}}</span> 
+ 
+                    <button 
+                        type="button" 
+                        class="remove-permission-button" 
+                        (click)="removePermission(email)"
+                    > 
+                        ✕ 
+                    </button> 
+                </div> 
+            } 
+ 
+            <div class="add-permission"> 
+                <input 
+                    type="email" 
+                    placeholder="Enter email address" 
+                    [(ngModel)]="newPermissionEmail"
+                > 
+ 
+                <button 
+                    type="button" 
+                    class="add-permission-button"
+                    (click)="addPermission()" 
+                > 
+                    Add 
+                </button> 
+            </div>
+
+            <!-- LINK EXPIRY -->
+
+            <div class="expiry-section">
+
+                <h3>Link expiry</h3>
+
+                <p class="current-expiry">
+                    Current expiry:
+                    <strong>
+                        {{SelectedShareLink?.expires_at | date:'dd-MM-yyyy'}}
+                    </strong>
+                </p>
+
+                <label class="expiry-label">
+                    New expiry
+                </label>
+
+                <div class="expiry-picker">
+
+                    <input
+                        type="date"
+                        class="expiry-input"
+                        [min]="minExpiryDate"
+                        [(ngModel)] = "changeExpiryTime"
+                    >
+
+                </div>
+
+                <p class="expiry-help">
+                    Select the date and time when this share link should expire.
+                </p>
+
+            </div>
+ 
+            <div class="settings-buttons"> 
+ 
+                <button 
+                    type="button" 
+                    class="save-settings-button" 
+                    (click)="shareSettings()"
+                > 
+                    Save 
+                </button> 
+ 
+                <button 
+                    type="button" 
+                    class="cancel-settings-button" 
+                    (click)="closeSettingPopup()" 
+                > 
+                    Cancel 
+                </button> 
+ 
+            </div> 
+ 
+        </div> 
+ 
+    </div> 
+}
+
+@if(showMessage) {
+
+    <div class="message-overlay">
+
+        <div class="message-popup">
+
+            <p>
+                {{message}}
+            </p>
+
+        </div>
+
+    </div>
+
+}

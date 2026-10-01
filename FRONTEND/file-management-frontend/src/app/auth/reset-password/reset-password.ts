@@ -85,7 +85,7 @@ export class ResetPassword {
       return
     }
     if(this.new_password !== this.confirm_password){
-      this.message = "Passwords dont match"
+      this.message = "Passwords do not match"
       return
     }
 
@@ -103,7 +103,7 @@ export class ResetPassword {
 
       setTimeout(() => {
         this.router.navigate(['/login'])
-      },1500)
+      },2500)
     },
     error:error =>{
       this.message = error.error.detail

@@ -3,12 +3,13 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import User
 from app.security import get_current_user
-from app.schema.sharing_schema import ShareRequest
+from app.schema.sharing_schema import ShareRequest,ShareChange
 from app.handlers.sharing_handler import (
     create_share_handler,
     access_share_handler,
     revoke_share_handler,
-    get_all_shares_handler
+    get_all_shares_handler,
+    change_share_setting_handler
 )
 
 router = APIRouter(
@@ -42,14 +43,14 @@ def access(
         db
     )
 
-@router.delete("/{token}/revoke", status_code=status.HTTP_200_OK)
+@router.delete("/{share_id}/revoke", status_code=status.HTTP_200_OK)
 def revoke_sharing(
-    token: str,
+    share_id:int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     return revoke_share_handler(
-        token,
+        share_id,
         current_user.user_id,
         db
     )
@@ -60,6 +61,20 @@ def get_all_shares(
     db: Session = Depends(get_db)
 ):
     return get_all_shares_handler(
+        current_user.user_id,
+        db
+    )
+
+@router.patch("/{share_id}/change", status_code=status.HTTP_200_OK)
+def change_share_setting(
+    share_id:int,
+    request:ShareChange,
+    current_user:User = Depends(get_current_user),
+    db:Session = Depends(get_db)
+):
+    return change_share_setting_handler(
+        share_id,
+        request,
         current_user.user_id,
         db
     )

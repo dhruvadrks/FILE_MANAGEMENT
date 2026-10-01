@@ -1,14 +1,27 @@
 <div class="search-section">
 
-    <input
-        id="search-bar"
-        type="text"
-        placeholder="Search files"
-        [(ngModel)]="searchText"
-        (ngModelChange)="searchTextChanged()"
-    >
+    <div class="search-top">
+        <input
+            id="search-bar"
+            type="text"
+            [placeholder]="searchType === 'filename'
+                ? 'Search files'
+                : 'Search content'"
+            [(ngModel)]="searchText"
+            (ngModelChange)="searchTextChanged()"
+        >
+
+        <button
+            class="search-button"
+            type="button"
+            (click)="searchFiles()"
+        >
+            Search
+        </button>
+    </div>
 
     <div class="search-type">
+        <span>Search by:</span>
 
         <label>
             <input
@@ -29,19 +42,11 @@
             >
             Content
         </label>
-
     </div>
-
-    <button
-        class="search-button"
-        type="button"
-        (click)="searchFiles()"
-    >
-        Search
-    </button>
 
 </div>
 
+<div class="file-table-container">
 <table class="file-table">
 
     <thead>
@@ -137,6 +142,7 @@
     </tbody>
 
 </table>
+</div>
 
 @if (showSharePopup) {
 
@@ -160,36 +166,23 @@
 
             <div class="expiry-section">
 
-                <input
-                    type="number"
-                    [(ngModel)]="expiresIn"
-                    min="1"
-                    placeholder="Optional"
-                >
+                <p class="expiry-help">
+                    Select a expiry date, or use the
+                    default 3-day expiry.
+                </p>
 
-                <select [(ngModel)]="expiresUnit">
+                <div class="expiry-picker">
 
-                    <option value="">
-                        Default (3 Days)
-                    </option>
+                    <input
+                        type="date"
+                        class="expiry-unit"
+                        [(ngModel)] = "shareExpiryDate"
+                        
+                        [min] = "minExpiryDate"
+                    >
 
-                    <option value="minutes">
-                        Minutes
-                    </option>
+                </div>
 
-                    <option value="hours">
-                        Hours
-                    </option>
-
-                    <option value="days">
-                        Days
-                    </option>
-
-                    <option value="years">
-                        Years
-                    </option>
-
-                </select>
 
             </div>
 
@@ -223,7 +216,8 @@
             <h2>Delete File</h2>
             <p>
                 Are you sure you want to delete
-                <strong>{{selectedDeleteFile?.file_name}}</strong> 
+                <strong>{{selectedDeleteFile?.file_name}}.</strong><br>
+                This will delete all existing sharelink for this file 
             </p>
             <div class="delete-buttons">
                 <button 

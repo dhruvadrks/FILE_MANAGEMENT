@@ -60,7 +60,12 @@ export class Login {
           this.router.navigateByUrl(returnUrl)
           return
         }
-        this.router.navigate(['/dashboard/files'])
+        setTimeout(() => {
+          this.router.navigate(['/dashboard/files'])
+        },2000)
+        
+        this.email = ''
+        this.password = ''
       },
 
       error: error => {

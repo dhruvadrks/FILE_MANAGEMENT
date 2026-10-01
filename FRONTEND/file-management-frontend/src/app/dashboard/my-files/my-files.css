@@ -1,70 +1,117 @@
 .search-section {
+    background: #1a1d24;
+    border: 1px solid #2d3440;
+    border-radius: 16px;
+    padding: 16px;
+    max-width: 1000px;
+    margin-bottom: 30px;
+}
+
+.search-top {
     display: flex;
     gap: 12px;
-    align-items: center;
 }
 
 #search-bar {
-    width: 600px;
-    height: 42px;
-    flex: 4;
-    padding: 0 15px;
-
-    background-color: #1f1f20;
+    flex: 1;
+    height: 48px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid #3a4250;
+    background: #111318;
     color: white;
-
-    border: 1px solid #3a3a3c;
-    border-radius: 20px;
-
+    font-size: 14px;
     outline: none;
 }
 
-#search-bar::placeholder {
-    color: #b3b3b3;
-}
-
 #search-bar:focus {
-    border-color: #0a84ff;
-}
-
-.search-type {
-    display: flex;
-    flex: 1;
-    gap: 15px;
-    align-items: center;
-    color: white;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
 }
 
 .search-button {
-    width: 90px;
-    height: 42px;
-
-    background-color: #0a84ff;
-    color: white;
-
+    min-width: 120px;
     border: none;
-    border-radius: 20px;
-
-    font-weight: 700;
+    border-radius: 12px;
+    background: #0d6efd;
+    color: white;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.2s ease;
+    transition: 0.2s;
 }
 
 .search-button:hover {
-    background-color: #3b9cff;
+    background: #2b7fff;
+}
+
+.search-type {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: #d1d5db;
+    font-size: 16px;
+}
+
+.search-type span {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.search-type label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.search-type input[type="radio"] {
+    accent-color: #0d6efd;
+}
+
+
+/* =========================
+   FILE TABLE
+========================= */
+
+.file-table-container {
+    width: 100%;
+    margin-top: 35px;
+
+    max-height: calc(100vh - 140px);
+
+    overflow-y: auto;
+    overflow-x: auto;
+
+    border-radius: 16px;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.file-table-container  ::-webkit-scrollbar{
+    display: none;
 }
 
 .file-table {
     width: 100%;
-    margin-top: 50px;
 
     background-color: #1f1f20;
 
     border-collapse: separate;
     border-spacing: 0;
+}
 
-    border-radius: 16px;
-    overflow: hidden;
+.file-table thead{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.file-table thead th{
+    background-color: #2a2a2b;
+    color: #b3b3b3;
+    font-weight: 600;
 }
 
 .file-table th,
@@ -90,6 +137,11 @@
 .file-table tbody tr:hover {
     background-color: #292929;
 }
+
+
+/* =========================
+   TABLE COLUMN WIDTHS
+========================= */
 
 .file-table th:nth-child(1),
 .file-table td:nth-child(1) {
@@ -122,6 +174,11 @@
     width: 15%;
 }
 
+
+/* =========================
+   FILE NAME
+========================= */
+
 .file-name span {
     color: white;
 }
@@ -132,17 +189,29 @@
     cursor: pointer;
 }
 
+
+/* =========================
+   FAVORITE
+========================= */
+
 .favorite-button {
     background: none;
     border: none;
+
     font-size: 22px;
     color: #666;
+
     cursor: pointer;
 }
 
 .favorite-active {
     color: gold;
 }
+
+
+/* =========================
+   ACTIONS
+========================= */
 
 .actions {
     text-align: center;
@@ -157,9 +226,10 @@
 
     border: none;
     outline: none;
-    background: transparent;
 
+    background: transparent;
     color: white;
+
     font-size: 24px;
     font-weight: bold;
 
@@ -171,6 +241,7 @@
 
     text-align: center;
     text-align-last: center;
+
     padding: 0;
 }
 
@@ -181,9 +252,11 @@
 .actions select option {
     background-color: #1f1f20;
     color: white;
+
     font-size: 15px;
     padding: 10px;
 }
+
 
 /* =========================
    POPUP OVERLAYS
@@ -193,17 +266,18 @@
 .delete-overlay,
 .rename-overlay {
     position: fixed;
-    inset: 0;
+    inset:0PX;
 
     background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(5px);
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    z-index: 1000;
+    z-index: 3;
 }
+
 
 /* =========================
    POPUP CONTAINERS
@@ -224,13 +298,14 @@
 
     box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(255,255,255,0.03);
+        0 0 0 1px rgba(255, 255, 255, 0.03);
 
     animation: popupFade 0.3s ease;
 }
 
+
 /* =========================
-   HEADINGS
+   SHARE POPUP HEADING
 ========================= */
 
 .share-popup h2,
@@ -239,12 +314,14 @@
     margin: 0 0 15px 0;
 
     color: white;
+
     font-size: 24px;
     font-weight: 600;
 }
 
+
 /* =========================
-   TEXT
+   POPUP TEXT
 ========================= */
 
 .share-popup p,
@@ -252,7 +329,8 @@
 .rename-popup p {
     margin-top: 10px;
 
-    color: #b3b3b3;
+    color: white;
+
     font-size: 15px;
     line-height: 1.5;
 }
@@ -263,17 +341,34 @@
     color: white;
 }
 
+
 /* =========================
-   INPUTS
+   SHARE POPUP LABELS
 ========================= */
 
-.share-popup input,
-.rename-popup input,
-.share-popup select {
-    width: 100%;
-    box-sizing: border-box;
+.share-popup > label {
+    display: block;
 
+    margin-top: 25px;
+    
+
+    color: #b3b3b3;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =========================
+   POPUP INPUTS
+========================= */
+
+.share-popup > input[type="text"],
+.rename-popup input {
+    width: 100%;
     height: 42px;
+
+    box-sizing: border-box;
 
     margin-top: 8px;
     padding: 0 12px;
@@ -283,45 +378,143 @@
 
     border: 1px solid #3a3a3c;
     border-radius: 8px;
-}
 
-.share-popup input:focus,
-.rename-popup input:focus,
-.share-popup select:focus {
-    border-color: #0a84ff;
     outline: none;
 }
 
-.expiry-section {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
+.share-popup > input[type="text"]::placeholder,
+.rename-popup input::placeholder {
+    color: #777;
 }
 
-.expiry-section input,
-.expiry-section select {
-    flex: 1;
+.share-popup > input[type="text"]:focus,
+.rename-popup input:focus {
+    border-color: #0a84ff;
 }
+
 
 /* =========================
-   BUTTON GROUPS
+   LINK EXPIRY
+========================= */
+
+.expiry-section {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.expiry-picker {
+    width: 100%;
+    margin-top: 0px;
+}
+
+.expiry-picker input[type="date"] {
+    width: 100%;
+    height: 42px;
+
+    box-sizing: border-box;
+
+    padding: 0 12px;
+
+    background: #2a2a2b;
+    color: white;
+
+    border: 1px solid #3a3a3c;
+    border-radius: 8px;
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+.expiry-picker input[type="datetime-local"]:focus {
+    border-color: #0a84ff;
+}
+
+.expiry-picker input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+
+/* =========================
+   DEFAULT 3-DAY OPTION
+========================= */
+
+.default-expiry {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 12px;
+
+    color: #b3b3b3;
+
+    font-size: 14px;
+}
+
+.default-expiry input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+
+    margin: 0;
+
+    accent-color: #0a84ff;
+
+    cursor: pointer;
+}
+
+.default-expiry label {
+    margin: 0;
+
+    color: #b3b3b3;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+
+/* =========================
+   EXPIRY HELP TEXT
+========================= */
+
+.expiry-help {
+    margin-top: 8px;
+
+    color: #777;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* =========================
+   SHARE BUTTONS
 ========================= */
 
 .share-buttons,
 .delete-buttons,
 .rename-buttons {
     display: flex;
+
     justify-content: center;
     align-items: center;
+
     gap: 18px;
+
     margin-top: 28px;
 }
 
-/* Primary Buttons */
+
+/* =========================
+   PRIMARY BUTTONS
+========================= */
 
 .confirm-rename-button,
 .share-buttons button:first-child {
     min-width: 120px;
+
     padding: 10px 20px;
 
     border: none;
@@ -331,6 +524,7 @@
     color: white;
 
     font-weight: 600;
+
     cursor: pointer;
 
     transition: 0.2s ease;
@@ -341,10 +535,14 @@
     background: #3b9cff;
 }
 
-/* Delete Button */
+
+/* =========================
+   DELETE BUTTON
+========================= */
 
 .confirm-delete-button {
     min-width: 120px;
+
     padding: 10px 20px;
 
     border: none;
@@ -354,6 +552,7 @@
     color: white;
 
     font-weight: 600;
+
     cursor: pointer;
 
     transition: 0.2s ease;
@@ -363,12 +562,16 @@
     background: #dc2626;
 }
 
-/* Cancel Buttons */
+
+/* =========================
+   CANCEL BUTTONS
+========================= */
 
 .cancel-delete-button,
 .cancel-rename-button,
 .share-buttons button:last-child {
     min-width: 120px;
+
     padding: 10px 20px;
 
     border: 1px solid #3a3a3c;
@@ -378,6 +581,7 @@
     color: white;
 
     font-weight: 600;
+
     cursor: pointer;
 
     transition: 0.2s ease;
@@ -390,38 +594,54 @@
 }
 
 
-
 /* =========================
    MESSAGE TOAST
 ========================= */
 
 .message-overlay {
     position: fixed;
+
     top: 25px;
     left: 0;
+
     width: 100%;
+
     display: flex;
     justify-content: center;
+
     z-index: 1100;
 }
 
 .message-popup {
     width: 450px;
+
     background-color: #1f1f20;
+
     border: 1px solid #3a3a3c;
     border-radius: 12px;
+
     padding: 18px;
+
     animation: messageFade 0.2s ease;
 }
 
 .message-popup p {
     color: #22c55e;
+
     text-align: center;
+
     margin: 0;
+
     font-family: Calibri, sans-serif;
+
     font-size: 16px;
     font-weight: 600;
 }
+
+
+/* =========================
+   POPUP ANIMATION
+========================= */
 
 @keyframes popupFade {
     from {
@@ -434,6 +654,11 @@
         transform: translateY(0) scale(1);
     }
 }
+
+
+/* =========================
+   MESSAGE ANIMATION
+========================= */
 
 @keyframes messageFade {
     from {
