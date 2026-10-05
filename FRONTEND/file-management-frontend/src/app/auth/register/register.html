@@ -18,6 +18,7 @@
           id="first_name"
           name="first_name"
           [(ngModel)]="first_name"
+          (blur)="formatName('first_name')"
         />
       </div>
 
@@ -28,6 +29,7 @@
           id="last_name"
           name="last_name"
           [(ngModel)]="last_name"
+          (blur)="formatName('last_name')"
         />
       </div>
     </div>

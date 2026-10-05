@@ -4,8 +4,9 @@ from datetime import datetime, timedelta, timezone
 import secrets
 from app.database.redis_client import redis_client
 from app.database.models import User
-from app.schema.auth_schema import RegisterRequest,LoginRequest,ForgotPasswordRequest,PasswordResetResponse,ResetPasswordRequest
+from app.schema.auth_schema import RegisterRequest,LoginRequest,ForgotPasswordRequest,PasswordResetResponse,ResetPasswordRequest,ProfileUpdate
 from app.security import hash_password, verify_password,create_access_token
+
 
 def register_user(request: RegisterRequest, db: Session):
 
@@ -204,3 +205,34 @@ def validate_reset_token(token:str):
     return PasswordResetResponse(
         message="Reset link is valid"
     )
+
+def get_profile_handler(
+    current_user
+):
+
+    return {
+        "first_name":current_user.first_name,
+        "last_name":current_user.last_name,
+        "email":current_user.email
+    }
+
+def update_profile_handler(
+    request: ProfileUpdate,
+    current_user: User,
+    db: Session
+):
+
+    if request.first_name is not None:
+        current_user.first_name = request.first_name
+
+    if request.last_name is not None:
+        current_user.last_name = request.last_name
+
+    if request.email is not None:
+        current_user.email = request.email
+
+    db.commit()
+
+    return {
+        "message": "Profile updated successfully"
+    }

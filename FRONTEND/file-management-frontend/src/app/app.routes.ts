@@ -8,6 +8,7 @@ import { MyFiles } from './dashboard/my-files/my-files';
 import { ErrorPage } from './error-page/error-page';
 import { Share } from './share/share';
 import { ShareLinks } from './dashboard/share-links/share-links';
+import { Profile } from './dashboard/profile/profile';
 
 export const routes: Routes = [
     {
@@ -56,5 +57,9 @@ export const routes: Routes = [
     {
         path: 'share/:token',
         component: Share
+    },
+    {
+        path: 'profile',
+        component: Profile
     }
 ];

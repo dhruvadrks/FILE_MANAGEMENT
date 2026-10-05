@@ -50,3 +50,13 @@ class ResetPasswordRequest(BaseModel):
 
 class PasswordResetResponse(BaseModel):
     message: str
+
+class ProfileResponse(BaseModel):
+    first_name:str
+    last_name:str
+    email:str
+
+class ProfileUpdate(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr | None = None

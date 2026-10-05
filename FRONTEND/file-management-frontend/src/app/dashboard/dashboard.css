@@ -1,11 +1,19 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+
 .dashboard {
+    height: 100vh;
+    overflow: hidden;
     background-color: #0f0f10;
-    min-height: 100vh;
     color: white;
 }
 
 .logo {
-    width: 220px;
+    width: 200px;
     height: 65px;
     display: block;
     margin-top: 10px;
@@ -14,25 +22,47 @@
 
 .top-bar {
     height: 80px;
+    box-sizing: border-box;
+
     background-color: #090909;
-    border-bottom: 1px solid #3a3a3c;
+    border-bottom: 0px solid #3a3a3c;
+
     display: flex;
-    position: sticky;
     align-items: center;
+
     padding-left: 20px;
+
+    flex-shrink: 0;
 }
 
 .dashboard-body {
     display: flex;
-    height: calc(100vh-80vh);
+
+    height: calc(100vh - 80px);
+
+    overflow: hidden;
 }
 
 .sidebar {
     width: 220px;
-    min-height: calc(100vh - 70px);
+    height: 100%;
+    box-sizing: border-box;
+
     background-color: #090909;
-    border-right: 1px solid #3a3a3c;
+    border-right: 0px solid #3a3a3c;
+
     padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    flex-shrink: 0;
+
+    overflow: hidden;
+}
+
+.profile-button {
+    margin-top: auto;
 }
 
 .upload-button {
@@ -83,9 +113,15 @@
 
 .main-content {
     flex: 1;
-    padding: 20px;
-    background-color: #0f0f10;
+
     min-width: 0;
+    min-height: 0;
+
+    padding: 20px;
+
+    background-color: #0f0f10;
+
+    overflow: auto;
 }
 
 .message-overlay {

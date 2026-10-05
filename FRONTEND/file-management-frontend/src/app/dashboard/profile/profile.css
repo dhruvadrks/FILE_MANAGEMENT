@@ -1,0 +1,173 @@
+:host {
+display: flex;
+width: 100%;
+height: 100%;
+}
+
+.profile-page {
+width: 100%;
+min-height: 100vh;
+box-sizing: border-box;
+background-color: #0f0f10;
+color: rgb(250, 248, 248);
+
+ 
+display: flex;
+justify-content: center;
+align-items: flex-start;
+
+padding-top: 60px;
+ 
+
+}
+
+.profile-container {
+width: 600px;
+box-sizing: border-box;
+
+ 
+background-color: #1a1d24;
+border: 1px solid #2d3440;
+border-radius: 18px;
+
+padding: 35px;
+ 
+
+}
+
+.profile-header {
+margin-bottom: 35px;
+}
+
+.profile-header h1 {
+margin: 0 0 8px 0;
+font-size: 28px;
+}
+
+.profile-header p {
+margin: 0;
+color: rgb(250, 248, 248);
+font-size: 14px;
+}
+
+.profile-details {
+display: flex;
+flex-direction: column;
+gap: 25px;
+}
+
+.profile-field {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+
+.profile-field label {
+font-size: 14px;
+font-weight: 600;
+color: rgb(250, 248, 248);
+}
+
+.profile-input-row {
+display: flex;
+align-items: center;
+width: 100%;
+}
+
+.profile-input-row input {
+flex: 1;
+height: 48px;
+box-sizing: border-box;
+
+ 
+padding: 0 50px 0 15px;
+
+background-color: #252932;
+border: 1px solid #3a414d;
+border-radius: 10px;
+
+color: rgb(250, 248, 248);
+font-size: 15px;
+
+outline: none;
+ 
+
+}
+
+.profile-input-row input:disabled {
+color: #d1d5db;
+background-color: #20232a;
+cursor: default;
+}
+
+.profile-input-row input:not(:disabled):focus {
+border-color: #4f8cff;
+}
+
+.profile-input-row input::placeholder {
+color: #777f8c;
+}
+
+.edit-button {
+width: 38px;
+height: 38px;
+
+ 
+margin-left: -45px;
+
+border: none;
+border-radius: 8px;
+
+background: transparent;
+color: #9ca3af;
+
+font-size: 19px;
+
+cursor: pointer;
+
+display: flex;
+align-items: center;
+justify-content: center;
+ 
+
+}
+
+.edit-button:hover {
+background-color: #303641;
+color: white;
+}
+
+.profile-actions {
+margin-top: 35px;
+display: flex;
+justify-content: flex-end;
+}
+
+.update-profile-button {
+height: 44px;
+padding: 0 22px;
+
+ 
+border: none;
+border-radius: 9px;
+
+background-color: #2563eb;
+color: white;
+
+font-size: 14px;
+font-weight: 600;
+
+cursor: pointer;
+ 
+
+}
+
+.update-profile-button:hover:not(:disabled) {
+background-color: #1d4ed8;
+}
+
+.update-profile-button:disabled {
+background-color: #343942;
+color: #777f8c;
+cursor: not-allowed;
+}

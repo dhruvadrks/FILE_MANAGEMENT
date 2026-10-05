@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.schema.auth_schema import ForgotPasswordRequest, LoginResponse, PasswordResetResponse, RegisterRequest, RegisterResponse, LoginRequest, ResetPasswordRequest
-from app.handlers.auth_handler import register_user,login_user,forgot_password_user,reset_password_user,validate_reset_token
+from app.database.models import User
+from app.security import get_current_user
+from app.schema.auth_schema import ForgotPasswordRequest, LoginResponse, PasswordResetResponse, RegisterRequest, RegisterResponse, LoginRequest, ResetPasswordRequest,ProfileResponse,ProfileUpdate
+from app.handlers.auth_handler import register_user,login_user,forgot_password_user,reset_password_user,validate_reset_token,get_profile_handler,update_profile_handler
 
 
 router = APIRouter(
@@ -10,7 +12,6 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
-@router.get("")
 
 @router.post(
     "/register",
@@ -84,3 +85,30 @@ def reset_password(
 def validate_reset_password_token(token:str):
 
     return validate_reset_token(token)
+
+@router.get(
+    "/profile",
+    response_model=ProfileResponse,
+    status_code=status.HTTP_200_OK
+)
+def get_profile(
+    current_user: User = Depends(get_current_user)
+):
+
+    return get_profile_handler(current_user)
+
+@router.patch(
+    "/profile",
+    status_code=status.HTTP_200_OK
+)
+def update_profile(
+    request: ProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    return update_profile_handler(
+        request,
+        current_user,
+        db
+    )

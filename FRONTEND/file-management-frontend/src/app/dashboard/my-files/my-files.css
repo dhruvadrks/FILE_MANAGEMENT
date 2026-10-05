@@ -1,10 +1,30 @@
+.my-files-page {
+    height: 100%;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   SEARCH SECTION
+========================= */
+
 .search-section {
     background: #1a1d24;
     border: 1px solid #2d3440;
     border-radius: 16px;
+
     padding: 16px;
+
     max-width: 1000px;
+
     margin-bottom: 30px;
+
+    flex-shrink: 0;
 }
 
 .search-top {
@@ -14,29 +34,43 @@
 
 #search-bar {
     flex: 1;
+
     height: 48px;
+
     padding: 0 16px;
+
     border-radius: 12px;
+
     border: 1px solid #3a4250;
+
     background: #111318;
     color: white;
+
     font-size: 14px;
+
     outline: none;
 }
 
 #search-bar:focus {
     border-color: #0d6efd;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+
+    box-shadow:
+        0 0 0 3px rgba(13, 110, 253, 0.15);
 }
 
 .search-button {
     min-width: 120px;
+
     border: none;
     border-radius: 12px;
+
     background: #0d6efd;
     color: white;
+
     font-weight: 600;
+
     cursor: pointer;
+
     transition: 0.2s;
 }
 
@@ -46,22 +80,29 @@
 
 .search-type {
     margin-top: 14px;
+
     display: flex;
     align-items: center;
+
     gap: 20px;
+
     color: #d1d5db;
+
     font-size: 16px;
 }
 
 .search-type span {
     color: #9ca3af;
+
     font-weight: 500;
 }
 
 .search-type label {
     display: flex;
     align-items: center;
+
     gap: 6px;
+
     cursor: pointer;
 }
 
@@ -71,14 +112,16 @@
 
 
 /* =========================
-   FILE TABLE
+   FILE TABLE CONTAINER
 ========================= */
 
 .file-table-container {
     width: 100%;
-    margin-top: 35px;
 
-    max-height: calc(100vh - 140px);
+    flex: 1;
+    min-height: 0;
+
+    margin-top: 0;
 
     overflow-y: auto;
     overflow-x: auto;
@@ -89,9 +132,14 @@
     -ms-overflow-style: none;
 }
 
-.file-table-container  ::-webkit-scrollbar{
+.file-table-container::-webkit-scrollbar {
     display: none;
 }
+
+
+/* =========================
+   FILE TABLE
+========================= */
 
 .file-table {
     width: 100%;
@@ -102,28 +150,27 @@
     border-spacing: 0;
 }
 
-.file-table thead{
+.file-table thead {
     position: sticky;
+
     top: 0;
+
     z-index: 2;
 }
 
-.file-table thead th{
-    background-color: #2a2a2b;
+.file-table thead th {
+    background-color: #303030;
+
     color: #b3b3b3;
+
     font-weight: 600;
 }
 
 .file-table th,
 .file-table td {
     padding: 15px;
-    text-align: center;
-}
 
-.file-table thead th {
-    background-color: #2a2a2b;
-    color: #b3b3b3;
-    font-weight: 600;
+    text-align: center;
 }
 
 .file-table tbody td {
@@ -146,6 +193,7 @@
 .file-table th:nth-child(1),
 .file-table td:nth-child(1) {
     width: 35%;
+
     text-align: left;
 }
 
@@ -185,7 +233,9 @@
 
 .file-name span:hover {
     color: #0a84ff;
+
     text-decoration: underline;
+
     cursor: pointer;
 }
 
@@ -196,9 +246,11 @@
 
 .favorite-button {
     background: none;
+
     border: none;
 
     font-size: 22px;
+
     color: #666;
 
     cursor: pointer;
@@ -222,15 +274,19 @@
     height: 40px;
 
     display: block;
+
     margin: 0 auto;
 
     border: none;
+
     outline: none;
 
     background: transparent;
+
     color: white;
 
     font-size: 24px;
+
     font-weight: bold;
 
     cursor: pointer;
@@ -251,9 +307,11 @@
 
 .actions select option {
     background-color: #1f1f20;
+
     color: white;
 
     font-size: 15px;
+
     padding: 10px;
 }
 
@@ -266,12 +324,15 @@
 .delete-overlay,
 .rename-overlay {
     position: fixed;
-    inset:0PX;
+
+    inset: 0;
 
     background: rgba(0, 0, 0, 0.55);
+
     backdrop-filter: blur(5px);
 
     display: flex;
+
     justify-content: center;
     align-items: center;
 
@@ -289,9 +350,11 @@
     width: 500px;
 
     background: #1f1f20;
+
     color: white;
 
     border: 1px solid #3a3a3c;
+
     border-radius: 16px;
 
     padding: 28px;
@@ -305,7 +368,7 @@
 
 
 /* =========================
-   SHARE POPUP HEADING
+   POPUP HEADINGS
 ========================= */
 
 .share-popup h2,
@@ -316,6 +379,7 @@
     color: white;
 
     font-size: 24px;
+
     font-weight: 600;
 }
 
@@ -332,6 +396,7 @@
     color: white;
 
     font-size: 15px;
+
     line-height: 1.5;
 }
 
@@ -350,11 +415,11 @@
     display: block;
 
     margin-top: 25px;
-    
 
     color: #b3b3b3;
 
     font-size: 14px;
+
     font-weight: 600;
 }
 
@@ -366,17 +431,21 @@
 .share-popup > input[type="text"],
 .rename-popup input {
     width: 100%;
+
     height: 42px;
 
     box-sizing: border-box;
 
     margin-top: 8px;
+
     padding: 0 12px;
 
     background: #2a2a2b;
+
     color: white;
 
     border: 1px solid #3a3a3c;
+
     border-radius: 8px;
 
     outline: none;
@@ -399,16 +468,19 @@
 
 .expiry-section {
     margin-top: 10px;
+
     margin-bottom: 10px;
 }
 
 .expiry-picker {
     width: 100%;
-    margin-top: 0px;
+
+    margin-top: 0;
 }
 
 .expiry-picker input[type="date"] {
     width: 100%;
+
     height: 42px;
 
     box-sizing: border-box;
@@ -416,9 +488,11 @@
     padding: 0 12px;
 
     background: #2a2a2b;
+
     color: white;
 
     border: 1px solid #3a3a3c;
+
     border-radius: 8px;
 
     outline: none;
@@ -432,6 +506,7 @@
 
 .expiry-picker input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
+
     cursor: pointer;
 }
 
@@ -442,6 +517,7 @@
 
 .default-expiry {
     display: flex;
+
     align-items: center;
 
     gap: 10px;
@@ -485,12 +561,13 @@
     color: #777;
 
     font-size: 13px;
+
     line-height: 1.4;
 }
 
 
 /* =========================
-   SHARE BUTTONS
+   BUTTON GROUPS
 ========================= */
 
 .share-buttons,
@@ -499,6 +576,7 @@
     display: flex;
 
     justify-content: center;
+
     align-items: center;
 
     gap: 18px;
@@ -518,9 +596,11 @@
     padding: 10px 20px;
 
     border: none;
+
     border-radius: 8px;
 
     background: #0a84ff;
+
     color: white;
 
     font-weight: 600;
@@ -546,9 +626,11 @@
     padding: 10px 20px;
 
     border: none;
+
     border-radius: 8px;
 
     background: #ef4444;
+
     color: white;
 
     font-weight: 600;
@@ -575,9 +657,11 @@
     padding: 10px 20px;
 
     border: 1px solid #3a3a3c;
+
     border-radius: 8px;
 
     background: #2a2a2b;
+
     color: white;
 
     font-weight: 600;
@@ -607,6 +691,7 @@
     width: 100%;
 
     display: flex;
+
     justify-content: center;
 
     z-index: 1100;
@@ -618,6 +703,7 @@
     background-color: #1f1f20;
 
     border: 1px solid #3a3a3c;
+
     border-radius: 12px;
 
     padding: 18px;
@@ -635,6 +721,7 @@
     font-family: Calibri, sans-serif;
 
     font-size: 16px;
+
     font-weight: 600;
 }
 
@@ -644,14 +731,21 @@
 ========================= */
 
 @keyframes popupFade {
+
     from {
         opacity: 0;
-        transform: translateY(-15px) scale(0.95);
+
+        transform:
+            translateY(-15px)
+            scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+
+        transform:
+            translateY(0)
+            scale(1);
     }
 }
 
@@ -661,13 +755,16 @@
 ========================= */
 
 @keyframes messageFade {
+
     from {
         opacity: 0;
+
         transform: translateY(-15px);
     }
 
     to {
         opacity: 1;
+
         transform: translateY(0);
     }
 }

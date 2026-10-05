@@ -34,6 +34,35 @@ export class Register {
     private router: Router
   ){}
 
+  formatName(field: 'first_name' | 'last_name') {
+
+      if (field === 'first_name') {
+
+          this.first_name =
+              this.first_name
+                  .split(' ')
+                  .map(word =>
+                      word.charAt(0).toUpperCase() +
+                      word.slice(1).toLowerCase()
+                  )
+                  .join(' ')
+
+      }
+
+      if (field === 'last_name') {
+
+          this.last_name =
+              this.last_name
+                  .split(' ')
+                  .map(word =>
+                      word.charAt(0).toUpperCase() +
+                      word.slice(1).toLowerCase()
+                  )
+                  .join(' ')
+
+      }
+  }
+
   register(){
 
     if(this.first_name.trim() === ''){
@@ -65,7 +94,7 @@ export class Register {
       {
         first_name:this.first_name,
         last_name:this.last_name,
-        email:this.email,
+        email:this.email.toLowerCase(),
         password:this.password,
         confirm_password:this.confirm_password
       }
