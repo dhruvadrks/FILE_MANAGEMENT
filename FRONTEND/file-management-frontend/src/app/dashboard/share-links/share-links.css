@@ -508,6 +508,11 @@
     color: white;
 }
 
+.owner-row{
+    border-color: #0a84ff;
+    background:transparent;
+}
+
 /* People with access */
 
 .settings-popup h3 {
@@ -566,57 +571,53 @@
 
 .add-permission {
     display: flex;
-    gap: 10px;
-
-    margin-top: 15px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin-top: 8px;
 }
 
 .add-permission input {
-    flex: 1;
-
-    padding: 10px 12px;
-
+    width: 100%;
+    height: 32px;
+    padding: 0 10px;
+    font-size: 13px;
     border: 1px solid #3a3a3c;
-    border-radius: 8px;
-
-    background: #2a2a2b;
+    background-color: #2a2a2b;
+    border-radius: 5px;
+    box-sizing: border-box;
     color: white;
+}
 
+.add-permission input:focus {
     outline: none;
-
-    font-size: 14px;
+    border: 1px solid #0a84ff;
 }
 
 .add-permission input::placeholder {
     color: #777;
 }
 
-.add-permission input:focus {
-    border-color: #0a84ff;
-}
-
-/* Add button */
-
 .add-permission-button {
-    padding: 10px 18px;
-
+    width: 55px;
+    height: 30px;
+    font-size: 12px;
     border: none;
-    border-radius: 8px;
-
-    background: #0a84ff;
+    border-radius: 5px;
+    background-color: #2563eb;
     color: white;
-
-    font-weight: 600;
-
     cursor: pointer;
-
-    transition: 0.2s ease;
 }
 
 .add-permission-button:hover {
-    background: #3b9cff;
+    background-color: #1d4ed8;
 }
 
+.add-permission p {
+    margin: 0;
+    font-size: 12px;
+    color: #dc2626;
+}
 /* Bottom buttons */
 
 .settings-buttons {

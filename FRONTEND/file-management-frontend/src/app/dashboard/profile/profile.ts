@@ -16,6 +16,9 @@ export class Profile implements OnInit {
 
     isEditing = false
 
+    showMessage = false
+    message = ''
+
     constructor(
         private http: HttpClient,
         private cdr: ChangeDetectorRef
@@ -68,7 +71,7 @@ export class Profile implements OnInit {
 
                 this.firstName = response.first_name
                 this.lastName = response.last_name
-                this.email = response.email
+                this.email = response.email.toLowerCase()
 
                 this.cdr.detectChanges()
 
@@ -107,12 +110,36 @@ export class Profile implements OnInit {
                 console.log(response)
 
                 this.isEditing = false
+                localStorage.setItem('first_name', this.firstName)
+                localStorage.setItem('email', this.email)
+                this.showMessagePopup('Profile updated successfully')
                 this.cdr.detectChanges()
 
             },
             error: error => {
                 console.log(error)
+                if (error.status === 409) {
+                    this.showMessagePopup('Email already registered')
+                }
+                this.cdr.detectChanges()
             }
         })
     }
+
+  showMessagePopup(text: string) {
+
+    this.message = text
+
+    this.showMessage = true
+
+    this.cdr.detectChanges()
+
+    setTimeout(() => {
+
+      this.showMessage = false
+
+      this.cdr.detectChanges()
+
+    }, 3000)
+  }
 }

@@ -17,10 +17,12 @@ def create_share_handler(
 
     owner = (
         db.query(User)
-        .filter(User.user_id == user_id)
+        .filter(
+            User.user_id == user_id
+        )
         .first()
-    ) 
-    
+    )
+
     file = (
         db.query(File)
         .filter(
@@ -36,12 +38,50 @@ def create_share_handler(
             detail="File not found"
         )
 
+    # Get current time once
     now = datetime.now(timezone.utc)
 
+    # Check if a share link already exists
+    existing_share = (
+        db.query(Sharelink)
+        .filter(
+            Sharelink.file_id == file_id,
+            Sharelink.status == True
+        )
+        .first()
+    )
+
+    if existing_share:
+
+        expires_at = existing_share.expires_at
+
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(
+                tzinfo=timezone.utc
+            )
+
+        # Existing link has expired
+        if expires_at <= now:
+
+            existing_share.status = False
+
+            db.commit()
+
+        # Existing link is still active
+        else:
+
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Share link already exists"
+            )
+
+    # Calculate expiry for the new share link
     if request.expires_at is None:
+
         expires_at = now + timedelta(days=3)
 
     else:
+
         expires_at = request.expires_at
 
         if expires_at.tzinfo is None:
@@ -50,16 +90,14 @@ def create_share_handler(
             )
 
         if expires_at <= now:
+
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Expiry time must  be in future'
+                detail="Expiry time must be in future"
             )
 
+    # Generate a new secure token
     share_token = secrets.token_urlsafe(32)
-
-    # token_hash = hashlib.sha256(
-    #     share_token.encode()
-    # ).hexdigest()
 
     new_share = Sharelink(
         file_id=file_id,
@@ -70,20 +108,26 @@ def create_share_handler(
     )
 
     db.add(new_share)
+
     db.flush()
 
+    # Add permissions
     for email in request.emails:
+
         if str(email) != owner.email:
+
             permission = Permission(
                 share_id=new_share.share_id,
                 email=str(email)
             )
-        
+
             db.add(permission)
 
     db.commit()
 
-    share_link = f"http://localhost:4200/share/{share_token}"
+    share_link = (
+        f"http://localhost:4200/share/{share_token}"
+    )
 
     return {
         "share_id": new_share.share_id,
@@ -250,6 +294,12 @@ def get_all_shares_handler(
 ):
     now = datetime.now(timezone.utc)
 
+    owner = (
+        db.query(User)
+        .filter(User.user_id == user_id)
+        .first()
+    )
+
     share_links = (
         db.query(Sharelink)
         .join(
@@ -288,6 +338,7 @@ def get_all_shares_handler(
             "share_id": share_link.share_id,
             "file_id": share_link.file_id,
             "file_name": file.file_name,
+            "owner_email": owner.email,
             "emails": [
                 permission.email
                 for permission in permissions

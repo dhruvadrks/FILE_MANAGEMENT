@@ -22,6 +22,8 @@ export class Dashboard {
   showMessage = false
   message = ''
 
+  firstName = localStorage.getItem('first_name') || ''
+
   activepage = 'files'
 
   UploadFile(event: Event) {

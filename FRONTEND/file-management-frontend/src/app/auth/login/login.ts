@@ -54,6 +54,8 @@ export class Login {
     ).subscribe({
       next: response => {
         localStorage.setItem('access_token', response.access_token)
+        localStorage.setItem('first_name', response.first_name)
+        localStorage.setItem('email', response.email.toLowerCase())
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl')
 
         if(returnUrl){

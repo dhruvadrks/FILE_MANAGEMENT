@@ -17,6 +17,7 @@ interface ShareLink {
   share_id: number;
   file_id: number;
   file_name: string;
+  owner_email: string;
   emails: string[];
   created_at: string;
   share_token: string;
@@ -45,7 +46,15 @@ export class MyFiles implements OnInit {
 
   showSharePopup = false
   selectedFile: File | null = null
-  shareEmails = ''
+
+  shareEmails: string[] = []
+  newPermissionEmail = ''.toLowerCase()
+
+  selectedShareId: number | null = null
+  selectedShareToken = ''
+  selectedShareExpiry = ''
+  selectedShareOwnerEmail = ''
+  ownerEmailError = false
 
   shareExpiryDate = ''
   useDefaultExpiry = true
@@ -70,24 +79,28 @@ export class MyFiles implements OnInit {
   ) {}
 
   ngOnInit() {
+
     this.setMinExpiryDate()
 
     if (this.route.snapshot.routeConfig?.path === 'files/favorites') {
       this.showOnlyFavorites = true
     }
+
     this.getFiles()
   }
 
-  setMinExpiryDate(){
+  setMinExpiryDate() {
+
     const now = new Date()
 
     const year = now.getFullYear()
-    const month = String(now.getMonth()+1).padStart(2,'0')
-    const day = String(now.getDate()).padStart(2,'0')
-    const hours = String(now.getHours()).padStart(2,'0')
-    const minutes = String(now.getMinutes()).padStart(2,'0')
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0')
 
-    this.minExpiryDate = `${year}-${month}-${day}T${hours}:${minutes}`
+    this.minExpiryDate =
+      `${year}-${month}-${day}T${hours}:${minutes}`
   }
 
   getFiles() {
@@ -102,20 +115,29 @@ export class MyFiles implements OnInit {
         }
       }
     ).subscribe({
+
       next: response => {
+
         this.files = response
+
         this.cdr.detectChanges()
       },
+
       error: error => {
+
         console.log(error)
+
       }
+
     })
   }
 
   searchTextChanged() {
 
     if (this.searchText.trim() === '') {
+
       this.getFiles()
+
     }
 
   }
@@ -125,7 +147,9 @@ export class MyFiles implements OnInit {
     const token = localStorage.getItem('access_token')
 
     if (this.searchText.trim() === '') {
+
       this.getFiles()
+
       return
     }
 
@@ -137,24 +161,38 @@ export class MyFiles implements OnInit {
           params: {
             file_name: this.searchText
           },
+
           headers: {
             Authorization: `Bearer ${token}`
           }
         }
       ).subscribe({
+
         next: response => {
+
           this.files = [response]
+
           this.cdr.detectChanges()
+
         },
+
         error: error => {
 
           if (error.status === 404) {
-            this.showMessagePopup(`No matching files found for "${this.searchText}"`)
+
+            this.showMessagePopup(
+              `No matching files found for "${this.searchText}"`
+            )
+
             this.cdr.detectChanges()
+
             this.getFiles()
+
             return
           }
+
         }
+
       })
 
     }
@@ -167,19 +205,31 @@ export class MyFiles implements OnInit {
           params: {
             query: this.searchText
           },
+
           headers: {
             Authorization: `Bearer ${token}`
           }
         }
       ).subscribe({
+
         next: response => {
+
           this.files = response
+
           this.cdr.detectChanges()
+
         },
+
         error: error => {
-            this.showMessagePopup(`No matching files found for "${this.searchText}"`)
-            this.cdr.detectChanges()
+
+          this.showMessagePopup(
+            `No matching files found for "${this.searchText}"`
+          )
+
+          this.cdr.detectChanges()
+
         }
+
       })
 
     }
@@ -189,15 +239,21 @@ export class MyFiles implements OnInit {
   formatFileSize(size: number): string {
 
     if (size < 1024) {
+
       return size + ' B'
+
     }
 
     if (size < 1024 * 1024) {
+
       return (size / 1024).toFixed(2) + ' KB'
+
     }
 
     if (size < 1024 * 1024 * 1024) {
+
       return (size / (1024 * 1024)).toFixed(2) + ' MB'
+
     }
 
     return (size / (1024 * 1024 * 1024)).toFixed(2) + ' GB'
@@ -216,24 +272,43 @@ export class MyFiles implements OnInit {
         }
       }
     ).subscribe({
+
       next: response => {
+
         file.is_favorite = response.is_favorite
-        if(response.is_favorite === true){
-          this.showMessagePopup(`${file.file_name} Marked as Favorite`)
+
+        if (response.is_favorite === true) {
+
+          this.showMessagePopup(
+            `${file.file_name} Marked as Favorite`
+          )
+
           this.cdr.detectChanges()
+
           return
         }
 
-        if(response.is_favorite === false){
-          this.showMessagePopup(`${file.file_name} Unmarked as Favorite`)
+        if (response.is_favorite === false) {
+
+          this.showMessagePopup(
+            `${file.file_name} Unmarked as Favorite`
+          )
+
           this.cdr.detectChanges()
+
           return
         }
 
       },
+
       error: error => {
-        this.showMessagePopup(`Failed to mark ${file.file_name} as Favorite`)
+
+        this.showMessagePopup(
+          `Failed to mark ${file.file_name} as Favorite`
+        )
+
       }
+
     })
   }
 
@@ -247,9 +322,11 @@ export class MyFiles implements OnInit {
         headers: {
           Authorization: `Bearer ${token}`
         },
+
         responseType: 'blob'
       }
     ).subscribe({
+
       next: response => {
 
         const fileurl = URL.createObjectURL(response)
@@ -257,31 +334,44 @@ export class MyFiles implements OnInit {
         window.open(fileurl)
 
       },
+
       error: error => {
+
         console.log(error)
+
       }
+
     })
   }
 
   handleAction(event: Event, file: File) {
 
     const select = event.target as HTMLSelectElement
+
     const action = select.value
 
     if (action === 'download') {
+
       this.download(file)
+
     }
 
     if (action === 'rename') {
+
       this.openRenamePopup(file)
+
     }
 
     if (action === 'delete') {
+
       this.openDeletePopup(file)
+
     }
 
     if (action === 'share') {
+
       this.openSharePopup(file)
+
     }
 
     select.value = ''
@@ -297,9 +387,11 @@ export class MyFiles implements OnInit {
         headers: {
           Authorization: `Bearer ${token}`
         },
+
         responseType: 'blob'
       }
     ).subscribe({
+
       next: response => {
 
         const fileurl = URL.createObjectURL(response)
@@ -307,6 +399,7 @@ export class MyFiles implements OnInit {
         const link = document.createElement('a')
 
         link.href = fileurl
+
         link.download = file.file_name
 
         document.body.appendChild(link)
@@ -317,19 +410,29 @@ export class MyFiles implements OnInit {
 
         URL.revokeObjectURL(fileurl)
 
-        this.showMessagePopup(`${file.file_name} downloaded successfully`)
+        this.showMessagePopup(
+          `${file.file_name} downloaded successfully`
+        )
 
       },
+
       error: error => {
-        this.showMessagePopup(`Failed to download ${file.file_name} Please try again`)
+
+        this.showMessagePopup(
+          `Failed to download ${file.file_name} Please try again`
+        )
+
       }
+
     })
   }
 
   openRenamePopup(file: File) {
 
     this.selectedRenameFile = file
+
     this.newFileName = file.file_name
+
     this.showRenamePopup = true
 
   }
@@ -337,7 +440,9 @@ export class MyFiles implements OnInit {
   closeRenamePopup() {
 
     this.showRenamePopup = false
+
     this.selectedRenameFile = null
+
     this.newFileName = ''
 
   }
@@ -345,7 +450,9 @@ export class MyFiles implements OnInit {
   renameFile() {
 
     if (!this.selectedRenameFile) {
+
       return
+
     }
 
     const token = localStorage.getItem('access_token')
@@ -368,8 +475,12 @@ export class MyFiles implements OnInit {
 
         this.files = this.files.map(file => {
 
-          if (file.file_id === this.selectedRenameFile?.file_id) {
+          if (
+            file.file_id === this.selectedRenameFile?.file_id
+          ) {
+
             file.file_name = this.newFileName
+
           }
 
           return file
@@ -378,7 +489,9 @@ export class MyFiles implements OnInit {
 
         this.closeRenamePopup()
 
-        this.showMessagePopup('File renamed successfully')
+        this.showMessagePopup(
+          'File renamed successfully'
+        )
 
       },
 
@@ -398,6 +511,7 @@ export class MyFiles implements OnInit {
   openDeletePopup(file: File) {
 
     this.selectedDeleteFile = file
+
     this.showDeletePopup = true
 
   }
@@ -405,6 +519,7 @@ export class MyFiles implements OnInit {
   closeDeletePopup() {
 
     this.showDeletePopup = false
+
     this.selectedDeleteFile = null
 
   }
@@ -412,12 +527,15 @@ export class MyFiles implements OnInit {
   deleteFile() {
 
     if (!this.selectedDeleteFile) {
+
       return
+
     }
 
     const token = localStorage.getItem('access_token')
 
     const fileId = this.selectedDeleteFile.file_id
+
     const filename = this.selectedFile?.file_name
 
     this.http.delete(
@@ -437,7 +555,9 @@ export class MyFiles implements OnInit {
 
         this.closeDeletePopup()
 
-        this.showMessagePopup(`Successfully Deleted ${filename}`)
+        this.showMessagePopup(
+          `Successfully Deleted ${filename}`
+        )
 
       },
 
@@ -445,64 +565,296 @@ export class MyFiles implements OnInit {
 
         this.closeDeletePopup()
 
-        this.showMessagePopup(`Failed to delete ${filename}`)
+        this.showMessagePopup(
+          `Failed to delete ${filename}`
+        )
 
       }
 
     })
   }
 
+
   openSharePopup(file: File) {
 
-    this.selectedFile = file
-    this.shareExpiryDate = ''
-    this.useDefaultExpiry = true
-    this.showSharePopup = true
+    this.selectedShareOwnerEmail = ''
 
+    this.selectedFile = file
+
+    this.shareEmails = []
+    this.newPermissionEmail = ''
+
+    this.shareExpiryDate = ''
+
+    this.selectedShareId = null
+    this.selectedShareToken = ''
+    this.selectedShareExpiry = ''
+
+    this.selectedShareOwnerEmail = localStorage.getItem('email')?.toLowerCase() || ''
+    const token = localStorage.getItem('access_token')
+
+    this.http.get<ShareLink[]>(
+      'http://127.0.0.1:8000/share',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    ).subscribe({
+
+      next: response => {
+
+        let existingShare: ShareLink | null = null
+
+        for (let i = 0; i < response.length; i++) {
+
+          if (response[i].file_id === file.file_id) {
+
+            existingShare = response[i]
+
+            break
+          }
+        }
+
+        if (existingShare) {
+
+
+          this.selectedShareId =
+            existingShare.share_id
+
+          this.selectedShareToken =
+            existingShare.share_token
+
+          this.selectedShareExpiry =
+            existingShare.expires_at
+
+          this.shareEmails = [
+            ...existingShare.emails
+          ]
+
+        }
+
+        this.showSharePopup = true
+
+        this.cdr.detectChanges()
+      },
+
+      error: error => {
+
+        console.log(error)
+
+      }
+
+    })
   }
 
   closeSharePopup() {
 
     this.showSharePopup = false
+
     this.selectedFile = null
-    this.shareEmails = ''
+
+    this.shareEmails = []
+
+    this.newPermissionEmail = ''
 
     this.shareExpiryDate = ''
+
+    this.selectedShareId = null
+
+    this.selectedShareToken = ''
+
+    this.selectedShareExpiry = ''
+
     this.useDefaultExpiry = false
+
+    this.selectedShareOwnerEmail = ''
+
     this.cdr.detectChanges()
 
   }
 
-  createShareLink() {
+  addSharePermission() {
 
-    if (!this.selectedFile) {
+    const email = this.newPermissionEmail.trim().toLowerCase
+    ()
+
+    if (email === '') {
+
+      return
+
+    }
+
+    if (this.shareEmails.includes(email)) {
+
+      return
+
+    }
+
+    if(email === localStorage.getItem('email')){
+      this.ownerEmailError = true
+      this.newPermissionEmail = ''
+      setTimeout(() => {
+        this.ownerEmailError = false
+        this.cdr.detectChanges()
+      },5000
+    )
+    return
+  }
+  
+    this.shareEmails.push(email)
+
+    this.newPermissionEmail = ''
+
+    this.cdr.detectChanges()
+  }
+
+  removeSharePermission(email: string) {
+
+    for (let i = 0; i < this.shareEmails.length; i++) {
+
+      if (this.shareEmails[i] === email) {
+
+        this.shareEmails.splice(i, 1)
+
+        break
+      }
+
+    }
+
+    this.cdr.detectChanges()
+  }
+
+  copyShareLink() {
+
+    if (!this.selectedShareToken) {
+
+      return
+    }
+
+    const shareLink =
+      `http://localhost:4200/share/${this.selectedShareToken}`
+
+    navigator.clipboard
+      .writeText(shareLink)
+      .then(() => {
+
+        this.showMessagePopup(
+          'Share link copied to clipboard'
+        )
+
+      })
+      .catch(error => {
+
+        console.log(error)
+
+      })
+  }
+
+  saveShare() {
+
+    if (this.selectedShareId) {
+
+      this.updateExistingShare()
+
+      return
+    }
+
+    this.createShareLink()
+  }
+
+  updateExistingShare() {
+
+    if (!this.selectedShareId) {
+
       return
     }
 
     const token = localStorage.getItem('access_token')
 
-    const emails = this.shareEmails
-      .split(',')
-      .map(email => email.trim())
-      .filter(email => email !== '')
+    const request: {
+      emails: string[]
+      expires_at?: string
+    } = {
+
+      emails: this.shareEmails
+
+    }
+
+    if (this.shareExpiryDate !== '') {
+
+      request.expires_at =
+        new Date(this.shareExpiryDate).toISOString()
+
+    }
+
+    const shareId = this.selectedShareId
+
+    const filename = this.selectedFile?.file_name
+
+    this.http.patch(
+      `http://127.0.0.1:8000/share/${shareId}/change`,
+      request,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    ).subscribe({
+
+      next: response => {
+
+        this.closeSharePopup()
+
+        this.showMessagePopup(
+          `Share settings updated successfully for ${filename}`
+        )
+
+      },
+
+      error: error => {
+
+        this.closeSharePopup()
+
+        this.showMessagePopup(
+          error.error?.detail ||
+          `Failed to update share settings for ${filename}`
+        )
+
+      }
+
+    })
+  }
+
+  createShareLink() {
+
+    if (!this.selectedFile) {
+
+      return
+    }
+
+    const token = localStorage.getItem('access_token')
 
     const request: {
       emails: string[]
-      expires_at?:string
+      expires_at?: string
     } = {
-      emails: emails
+
+      emails: this.shareEmails
+
     }
 
-    if(this.shareExpiryDate === ''){}
-    else{
-        request.expires_at = new Date(
-          this.shareExpiryDate
-        ).toISOString()
+    if (this.shareExpiryDate !== '') {
+
+      request.expires_at = new Date(
+        this.shareExpiryDate
+      ).toISOString()
+
     }
-    
 
     const fileId = this.selectedFile.file_id
-    const filename = this.selectedFile?.file_name
+
+    const filename = this.selectedFile.file_name
 
     this.http.post<{ share_link: string }>(
       `http://127.0.0.1:8000/share/${fileId}`,
@@ -515,28 +867,51 @@ export class MyFiles implements OnInit {
     ).subscribe({
 
       next: response => {
-      
+
         navigator.clipboard
           .writeText(response.share_link)
           .catch(error => console.log(error))
+
         this.closeSharePopup()
-        this.showMessagePopup(`Share link created successfully for ${filename}`)
+
+        this.showMessagePopup(
+          `Share link created successfully for ${filename}`
+        )
+
       },
 
       error: error => {
 
         this.closeSharePopup()
 
-        this.showMessagePopup(`Failed to create share link for ${filename}`)
+        if (error.status === 409) {
+
+          this.showMessagePopup(
+            `Share link already exists for ${filename}`
+          )
+
+        } else {
+
+          this.showMessagePopup(
+            `Failed to create share link for ${filename}`
+          )
+
+        }
 
       }
 
     })
   }
 
+
+  /* =========================
+     MESSAGE
+  ========================= */
+
   showMessagePopup(text: string) {
 
     this.message = text
+
     this.showMessage = true
 
     this.cdr.detectChanges()

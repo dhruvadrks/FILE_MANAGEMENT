@@ -73,7 +73,9 @@ def login_user(request: LoginRequest, db: Session):
 
     return {
         "user": existing_user,
-        "access_token": access_token
+        "access_token": access_token,
+        "first_name": existing_user.first_name,
+        "email": existing_user.email
     }
 
 
@@ -229,6 +231,22 @@ def update_profile_handler(
         current_user.last_name = request.last_name
 
     if request.email is not None:
+
+        existing_email_user = (
+            db.query(User)
+            .filter(
+                User.email == request.email,
+                User.user_id != current_user.user_id
+            )
+            .first()
+        )
+
+        if existing_email_user:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Email already registered"
+            )
+
         current_user.email = request.email
 
     db.commit()

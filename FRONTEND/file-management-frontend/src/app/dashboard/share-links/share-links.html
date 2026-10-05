@@ -125,6 +125,10 @@
                 </div>
 
             </div>
+
+            <div class="permission-row owner-row">
+                {{SelectedShareLink?.owner_email}} (Owner)
+            </div>
  
             <h3>People with access</h3> 
  
@@ -156,6 +160,10 @@
                 > 
                     Add 
                 </button> 
+
+                @if(ownerEmailError){
+                    <p>File owner aready has permission</p>
+                }
             </div>
 
             <!-- LINK EXPIRY -->

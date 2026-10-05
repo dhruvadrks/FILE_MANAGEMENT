@@ -1,164 +1,180 @@
 <div class="my-files-page">
 
-    <div class="search-section">
+  
+<div class="search-section">
 
-        <div class="search-top">
+    <div class="search-top">
 
-            <input
-                id="search-bar"
-                type="text"
-                [placeholder]="searchType === 'filename'
-                    ? 'Search files'
-                    : 'Search content'"
-                [(ngModel)]="searchText"
-                (ngModelChange)="searchTextChanged()"
-            >
+        <input
+            id="search-bar"
+            type="text"
+            [placeholder]="searchType === 'filename'
+                ? 'Search files'
+                : 'Search content'"
+            [(ngModel)]="searchText"
+            (ngModelChange)="searchTextChanged()"
+        >
 
-            <button
-                class="search-button"
-                type="button"
-                (click)="searchFiles()"
-            >
-                Search
-            </button>
-
-        </div>
-
-        <div class="search-type">
-
-            <span>Search by:</span>
-
-            <label>
-                <input
-                    type="radio"
-                    name="searchType"
-                    value="filename"
-                    [(ngModel)]="searchType"
-                >
-                Filename
-            </label>
-
-            <label>
-                <input
-                    type="radio"
-                    name="searchType"
-                    value="content"
-                    [(ngModel)]="searchType"
-                >
-                Content
-            </label>
-
-        </div>
+        <button
+            class="search-button"
+            type="button"
+            (click)="searchFiles()"
+        >
+            Search
+        </button>
 
     </div>
 
+    <div class="search-type">
 
-    <div class="file-table-container">
+        <span>Search by:</span>
 
-        <table class="file-table">
+        <label>
+            <input
+                type="radio"
+                name="searchType"
+                value="filename"
+                [(ngModel)]="searchType"
+            >
+            Filename
+        </label>
 
-            <thead>
-                <tr>
-                    <th>Filename</th>
-                    <th>Filesize</th>
-                    <th>Uploaded Date</th>
-                    <th>Favorite</th>
-                    <th>Indexing Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                @for (file of files; track file.file_id) {
-
-                    @if (!showOnlyFavorites || file.is_favorite) {
-
-                        <tr>
-
-                            <td
-                                class="file-name"
-                                (click)="ViewFile(file)"
-                            >
-                                <span>
-                                    {{file.file_name}}
-                                </span>
-                            </td>
-
-                            <td>
-                                {{formatFileSize(file.file_size)}}
-                            </td>
-
-                            <td>
-                                {{file.updated_at | date:'dd-yyyy'}}
-                            </td>
-
-                            <td>
-
-                                <button
-                                    class="favorite-button"
-                                    [class.favorite-active]="file.is_favorite"
-                                    (click)="toggleFavorite(file)"
-                                >
-                                    ★
-                                </button>
-
-                            </td>
-
-                            <td>
-
-                                @if (file.is_indexed) {
-                                    Indexed
-                                } @else {
-                                    Not Indexed
-                                }
-
-                            </td>
-
-                            <td class="actions">
-
-                                <select
-                                    (change)="handleAction($event, file)"
-                                >
-
-                                    <option value="">
-                                        ⋮
-                                    </option>
-
-                                    <option value="download">
-                                        Download
-                                    </option>
-
-                                    <option value="rename">
-                                        Rename
-                                    </option>
-
-                                    <option value="share">
-                                        Share
-                                    </option>
-
-                                    <option value="delete">
-                                        Delete
-                                    </option>
-
-                                </select>
-
-                            </td>
-
-                        </tr>
-
-                    }
-
-                }
-
-            </tbody>
-
-        </table>
+        <label>
+            <input
+                type="radio"
+                name="searchType"
+                value="content"
+                [(ngModel)]="searchType"
+            >
+            Content
+        </label>
 
     </div>
 
 </div>
 
+
+<div class="file-table-container">
+
+    <table class="file-table">
+
+        <thead>
+
+            <tr>
+
+                <th>Filename</th>
+
+                <th>Filesize</th>
+
+                <th>Uploaded Date</th>
+
+                <th>Favorite</th>
+
+                <th>Indexing Status</th>
+
+                <th>Actions</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @for (file of files; track file.file_id) {
+
+                @if (!showOnlyFavorites || file.is_favorite) {
+
+                    <tr>
+
+                        <td
+                            class="file-name"
+                            (click)="ViewFile(file)"
+                        >
+
+                            <span>
+                                {{file.file_name}}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            {{formatFileSize(file.file_size)}}
+                        </td>
+
+                        <td>
+                            {{file.updated_at | date:'dd-yyyy'}}
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="favorite-button"
+                                [class.favorite-active]="file.is_favorite"
+                                (click)="toggleFavorite(file)"
+                            >
+                                ★
+                            </button>
+
+                        </td>
+
+                        <td>
+
+                            @if (file.is_indexed) {
+
+                                Indexed
+
+                            } @else {
+
+                                Not Indexed
+
+                            }
+
+                        </td>
+
+                        <td class="actions">
+
+                            <select
+                                (change)="handleAction($event, file)"
+                            >
+
+                                <option value="">
+                                    ⋮
+                                </option>
+
+                                <option value="download">
+                                    Download
+                                </option>
+
+                                <option value="rename">
+                                    Rename
+                                </option>
+
+                                <option value="share">
+                                    Share
+                                </option>
+
+                                <option value="delete">
+                                    Delete
+                                </option>
+
+                            </select>
+
+                        </td>
+
+                    </tr>
+
+                }
+
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+  
+
+</div>
 
 @if (showSharePopup) {
 
@@ -166,32 +182,120 @@
 
         <div class="share-popup">
 
-            <h2>Share File</h2>
+            <h2>
+                Share Settings
+            </h2>
 
             <p>
                 {{ selectedFile?.file_name }}
             </p>
 
+
+            <!-- PERMISSIONS -->
+
             <label>
                 Grant Access
             </label>
 
-            <input
-                type="text"
-                [(ngModel)]="shareEmails"
-                placeholder="Enter email ID"
-            >
+
+            <!-- OWNER -->
+
+            <div class="permission-row owner-row">
+
+                <span>
+                    {{ selectedShareOwnerEmail }} (Owner)
+                </span>
+
+            </div>
+
+
+            <!-- AUTHORIZED USERS -->
+
+            @for (email of shareEmails; track email) {
+
+                <div class="permission-row">
+
+                    <span>
+                        {{ email }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="remove-permission-button"
+                        (click)="removeSharePermission(email)"
+                    >
+                        ✕
+                    </button>
+
+                </div>
+
+            }
+
+
+            <!-- ADD USER -->
+
+            <div class="add-permission">
+
+                <input
+                    type="email"
+                    [(ngModel)]="newPermissionEmail"
+                    placeholder="Enter email address"
+                >
+
+                <button
+                    type="button"
+                    class="add-permission-button"
+                    (click)="addSharePermission()"
+                >
+                    Add
+                </button>
+
+                @if(ownerEmailError){
+                    <p>File owner aready has permission</p>
+                }
+
+            </div>
+
+
+            <!-- EXPIRY -->
 
             <label>
-                Expires in
+                Link Expiry
             </label>
 
             <div class="expiry-section">
 
+                @if (selectedShareId) {
+
+                    <p class="current-expiry">
+
+                        Current expiry:
+
+                        <strong>
+                            {{ selectedShareExpiry | date:'dd MMM yyyy, hh:mm a' }}
+                        </strong>
+
+                    </p>
+
+                }
+
+
                 <p class="expiry-help">
-                    Select a expiry date, or use the
-                    default 3-day expiry.
+
+                    @if (selectedShareId) {
+
+                        Select a new expiry date to change the
+                        existing share link expiry.
+
+                    } @else {
+
+                        Select an expiry date, or use the
+                        default 3-day expiry.
+
+                    }
+
                 </p>
+
 
                 <div class="expiry-picker">
 
@@ -206,14 +310,23 @@
 
             </div>
 
+
+            <!-- BUTTONS -->
+
             <div class="share-buttons">
 
                 <button
                     type="button"
-                    (click)="createShareLink()"
+                    (click)="saveShare()"
                 >
-                    Create Share Link
+
+                    {{ selectedShareId
+                        ? 'Save Changes'
+                        : 'Create Share Link'
+                    }}
+
                 </button>
+
 
                 <button
                     type="button"
@@ -230,117 +343,74 @@
 
 }
 
-
-@if (showDeletePopup) {
-
-    <div class="delete-overlay">
-
-        <div class="delete-popup">
-
-            <h2>
-                Delete File
-            </h2>
-
-            <p>
-                Are you sure you want to delete
-                <strong>
-                    {{selectedDeleteFile?.file_name}}.
-                </strong>
-                <br>
-
-                This will delete all existing sharelink
-                for this file
-            </p>
-
-            <div class="delete-buttons">
-
-                <button
-                    type="button"
-                    class="confirm-delete-button"
-                    (click)="deleteFile()"
-                >
-                    Delete
-                </button>
-
-                <button
-                    type="button"
-                    class="cancel-delete-button"
-                    (click)="closeDeletePopup()"
-                >
-                    Cancel
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-}
-
-
 @if (showRenamePopup) {
 
-    <div class="rename-overlay">
+  
+<div class="rename-overlay">
 
-        <div class="rename-popup">
+    <div class="rename-popup">
 
-            <h2>
-                Rename File
-            </h2>
+        <h2>
+            Rename File
+        </h2>
 
-            <p>
-                Enter a new name for
-                <strong>
-                    {{selectedRenameFile?.file_name}}
-                </strong>
-            </p>
+        <p>
 
-            <input
-                type="text"
-                [(ngModel)]="newFileName"
-                placeholder="Enter new filename"
+            Enter a new name for
+
+            <strong>
+                {{selectedRenameFile?.file_name}}
+            </strong>
+
+        </p>
+
+        <input
+            type="text"
+            [(ngModel)]="newFileName"
+            placeholder="Enter new filename"
+        >
+
+        <div class="rename-buttons">
+
+            <button
+                type="button"
+                class="confirm-rename-button"
+                (click)="renameFile()"
             >
+                Rename
+            </button>
 
-            <div class="rename-buttons">
-
-                <button
-                    type="button"
-                    class="confirm-rename-button"
-                    (click)="renameFile()"
-                >
-                    Rename
-                </button>
-
-                <button
-                    type="button"
-                    class="cancel-rename-button"
-                    (click)="closeRenamePopup()"
-                >
-                    Cancel
-                </button>
-
-            </div>
+            <button
+                type="button"
+                class="cancel-rename-button"
+                (click)="closeRenamePopup()"
+            >
+                Cancel
+            </button>
 
         </div>
 
     </div>
 
-}
+</div>
+  
 
+}
 
 @if (showMessage) {
 
-    <div class="message-overlay">
+  
+<div class="message-overlay">
 
-        <div class="message-popup">
+    <div class="message-popup">
 
-            <p>
-                {{message}}
-            </p>
-
-        </div>
+        <p>
+            {{message}}
+        </p>
 
     </div>
+
+</div>
+  
 
 }

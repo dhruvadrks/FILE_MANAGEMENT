@@ -8,6 +8,7 @@ interface ShareLink {
   share_id: number;
   file_id: number;
   file_name: string;
+  owner_email: string;
   emails: string[];
   created_at: string;
   share_token: string;
@@ -29,6 +30,8 @@ export class ShareLinks implements OnInit{
   showSettingsPopup = false
 
   showRevokePopup = false
+
+  ownerEmailError = false
 
   showMessage = false;
   message = ''
@@ -172,15 +175,27 @@ export class ShareLinks implements OnInit{
       return
     }
 
-    const email = this.newPermissionEmail.trim()
+    const email = this.newPermissionEmail.trim().toLowerCase()
 
     if(email === ''){
       return
     }
 
     if(this.SelectedShareLink.emails.includes(email)){
+      this.newPermissionEmail = ''
       return
     }
+
+      if(email === this.SelectedShareLink.owner_email.toLowerCase()){
+      this.ownerEmailError = true
+      this.newPermissionEmail = ''
+      setTimeout(() => {
+        this.ownerEmailError = false
+        this.cdr.detectChanges()
+      },5000
+    )
+    return
+  }
 
     this.SelectedShareLink.emails.push(this.newPermissionEmail)
     this.newPermissionEmail = ''
