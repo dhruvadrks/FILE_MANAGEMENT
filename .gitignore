@@ -1,15 +1,48 @@
+# Environment variables / secrets
 .env
 .env.*
-node_modules/
-__pycache__/
-*.pyc
-.venv/
+!.env.example
+
+# Python virtual environments
 venv/
+.venv/
+
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Angular / Node generated files
+node_modules/
+.angular/
+dist/
+
+# IDE / editor files
 .vscode/
 .idea/
+
+# Application-generated files / user uploads
+BACKEND/storage/
 uploads/
-storage/
+
+# Logs
 *.log
+logs/
+
+# Local database files
 *.db
 *.sqlite
 *.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

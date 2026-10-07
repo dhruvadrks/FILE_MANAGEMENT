@@ -176,6 +176,36 @@
 
 </div>
 
+@if(showDeletePopup){
+    <div class="delete-overlay">
+        <div class="delete-popup">
+            <h2>Delete File</h2>
+            <p>
+                Are you sure you want to delete
+                <strong>{{selectedDeleteFile?.file_name}}</strong> 
+            </p>
+            <div class="delete-buttons">
+                <button 
+                    type="button"
+                    class="confirm-delete-button"
+                    (click)="deleteFile()"
+                >
+                    Delete
+                </button>
+
+                <button
+                    type="button"
+                    class="cancel-delete-button"
+                    (click)="closeDeletePopup()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+        </div>
+    </div>
+}
+
 @if (showSharePopup) {
 
     <div class="share-overlay">

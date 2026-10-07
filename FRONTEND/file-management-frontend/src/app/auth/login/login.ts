@@ -1,8 +1,8 @@
-
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router,ActivatedRoute } from '@angular/router';
+import { AuthService } from '../auth';
 
 interface LoginResponse {
   user_id: number;
@@ -28,7 +28,8 @@ export class Login {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   login() {
@@ -46,14 +47,17 @@ export class Login {
     }
 
     this.http.post<LoginResponse>(
-      'http://127.0.0.1:8000/auth/login',
+      'http://localhost:8000/auth/login',
       {
         email: this.email,
         password: this.password
+      },
+      {
+        withCredentials: true
       }
     ).subscribe({
       next: response => {
-        localStorage.setItem('access_token', response.access_token)
+        this.authService.setAccessToken(response.access_token)
         localStorage.setItem('first_name', response.first_name)
         localStorage.setItem('email', response.email.toLowerCase())
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl')

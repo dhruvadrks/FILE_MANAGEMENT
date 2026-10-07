@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth/auth';
+
 
 @Component({
   selector: 'app-share',
@@ -15,7 +17,8 @@ export class Share implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authservice: AuthService
   ) {}
 
   ngOnInit() {
@@ -33,12 +36,70 @@ export class Share implements OnInit {
       return;
     }
 
-    this.openShareLink();
+    this.validateToken()
+
+  }
+
+  validateToken() {
+
+    this.http.get(
+      'http://localhost:8000/share/sharelink/validate',
+      {
+        params: {
+          token: this.token
+        }
+      }
+    ).subscribe({
+
+      next: response => {
+        this.openShareLink()
+      },
+
+      error: error => {
+
+        let title = 'Invalid Share Link'
+        let message = 'The share link is invalid.'
+
+        if (error.status === 400) {
+
+          title = 'Invalid Share Link'
+          message = 'The share link is invalid.'
+
+        }
+
+        if (error.status === 410) {
+
+          if (error.error?.detail === 'Sharelink has expired') {
+
+            title = 'Share Link Expired'
+            message = 'This share link has expired and can no longer be used.'
+
+          }
+
+          if (error.error?.detail === 'Sharelink is no longer active') {
+
+            title = 'Share Link Revoked'
+            message = 'This share link has been revoked and can no longer be used.'
+
+          }
+
+        }
+
+        this.router.navigate(['/error'], {
+          queryParams: {
+            title: title,
+            message: message
+          }
+        })
+
+      }
+
+    })
   }
 
   openShareLink() {
 
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = this.authservice.getAccessToken()
 
     if (!accessToken) {
       this.router.navigate(['/error'], {
@@ -53,11 +114,8 @@ export class Share implements OnInit {
     }
 
     this.http.get(
-      `http://127.0.0.1:8000/share/${this.token}`,
+      `http://localhost:8000/share/${this.token}`,
       {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        },
         responseType: 'blob'
       }
     ).subscribe({

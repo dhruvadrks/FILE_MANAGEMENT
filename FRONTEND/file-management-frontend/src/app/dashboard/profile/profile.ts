@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
@@ -24,7 +24,7 @@ export class Profile implements OnInit {
         private cdr: ChangeDetectorRef
     ) {}
 
-    ngOnInit(){
+    ngOnInit() {
         this.getProfile()
     }
 
@@ -57,16 +57,10 @@ export class Profile implements OnInit {
 
     getProfile() {
 
-        const token = localStorage.getItem('access_token')
-
         this.http.get<any>(
-            'http://127.0.0.1:8000/auth/profile',
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
+            'http://localhost:8000/auth/profile'
         ).subscribe({
+
             next: response => {
 
                 this.firstName = response.first_name
@@ -76,19 +70,22 @@ export class Profile implements OnInit {
                 this.cdr.detectChanges()
 
             },
+
             error: error => {
+
                 console.log(error)
+
             }
+
         })
     }
 
     enableEditing() {
+
         this.isEditing = true
     }
 
     updateProfile() {
-
-        const token = localStorage.getItem('access_token')
 
         const request = {
             first_name: this.firstName,
@@ -97,49 +94,67 @@ export class Profile implements OnInit {
         }
 
         this.http.patch(
-            'http://127.0.0.1:8000/auth/profile',
-            request,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
+            'http://localhost:8000/auth/profile',
+            request
         ).subscribe({
+
             next: response => {
 
                 console.log(response)
 
                 this.isEditing = false
-                localStorage.setItem('first_name', this.firstName)
-                localStorage.setItem('email', this.email)
-                this.showMessagePopup('Profile updated successfully')
+
+                localStorage.setItem(
+                    'first_name',
+                    this.firstName
+                )
+
+                localStorage.setItem(
+                    'email',
+                    this.email.toLowerCase()
+                )
+
+                this.showMessagePopup(
+                    'Profile updated successfully'
+                )
+
                 this.cdr.detectChanges()
 
             },
+
             error: error => {
+
                 console.log(error)
+
                 if (error.status === 409) {
-                    this.showMessagePopup('Email already registered')
+
+                    this.showMessagePopup(
+                        'Email already registered'
+                    )
+
                 }
+
                 this.cdr.detectChanges()
+
             }
+
         })
     }
 
-  showMessagePopup(text: string) {
+    showMessagePopup(text: string) {
 
-    this.message = text
+        this.message = text
 
-    this.showMessage = true
+        this.showMessage = true
 
-    this.cdr.detectChanges()
+        this.cdr.detectChanges()
 
-    setTimeout(() => {
+        setTimeout(() => {
 
-      this.showMessage = false
+            this.showMessage = false
 
-      this.cdr.detectChanges()
+            this.cdr.detectChanges()
 
-    }, 3000)
-  }
+        }, 3000)
+    }
 }

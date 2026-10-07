@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from app.utils import utc_now
 from app.database.models import Sharelink, Permission, File, User
 from app.schema.sharing_schema import ShareRequest,ShareChange
 
@@ -470,4 +471,46 @@ def change_share_setting_handler(
         "message": "Share settings updated successfully",
         "share_id": share_id,
         "expires_at": share_link.expires_at
+    }
+
+def sharelink_validate_handler(
+        token:str,
+        db:Session
+):
+
+    existing_token = (
+        db.query(Sharelink)
+        .filter(
+            Sharelink.token == token
+        )
+        .first()
+    )
+
+    now = utc_now()
+
+    if not existing_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Share Link"
+        )
+
+    if existing_token.expires_at <= now:
+
+        existing_token.status = False
+        db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Sharelink has expired"
+        )
+
+    if existing_token.status == False:
+
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Sharelink is no longer active"
+        )
+
+    return {
+        "message" : "Sharelink is valid"
     }

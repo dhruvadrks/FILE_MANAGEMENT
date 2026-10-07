@@ -3,6 +3,9 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from dotenv import load_dotenv
 from pwdlib import PasswordHash
+import secrets
+import hmac
+import hashlib
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -13,24 +16,37 @@ from app.database.models import User
 load_dotenv()
 
 secret_key = os.getenv("secret_key")
+password_pepper = os.getenv("PASSWORD_PEPPER")
 
 ALGORITHM = "HS256"
 
-access_token_expiration_minutes = 300
+access_token_expiration_minutes = 10
 
 password_hash = PasswordHash.recommended()
 
+def Pepper_Password(password:str):
+
+    return hmac.new(
+        password_pepper.encode(),
+        password.encode(),
+        hashlib.sha256
+    ).hexdigest()
 
 def hash_password(password: str):
-    return password_hash.hash(password)
+    peppered_password = Pepper_Password(password)
+
+    return password_hash.hash(peppered_password)
 
 
 def verify_password(
     password: str,
     hashed_password: str
 ) -> bool:
+
+    peppered_password = Pepper_Password(password)
+
     return password_hash.verify(
-        password,
+        peppered_password,
         hashed_password
     )
 
@@ -87,6 +103,16 @@ def get_current_user(
 
     return existing_user
 
+
+def create_refresh_tokens():
+
+    token = secrets.token_urlsafe(64)
+
+    token_hash = hashlib.sha256(
+        token.encode()
+    ).hexdigest()
+
+    return token, token_hash
 
 def create_access_token(
     user_id: int,
