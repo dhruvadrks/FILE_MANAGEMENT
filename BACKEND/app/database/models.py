@@ -222,3 +222,33 @@ class Folder(Base):
     updated_at:Mapped[datetime]=mapped_column(
         DateTime
     )
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    refresh_token_id: Mapped[int] = mapped_column(
+        primary_key=True,
+        autoincrement=True
+    )
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.user_id"),
+        nullable=False
+    )
+
+    token_hash: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        unique=True
+    )
+
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False
+    )
+
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False
+    )

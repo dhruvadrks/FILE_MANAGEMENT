@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 import secrets
 from app.database.redis_client import redis_client
-from app.database.models import User
+from app.database.models import User, RefreshToken
 from app.schema.auth_schema import RegisterRequest,LoginRequest,ForgotPasswordRequest,PasswordResetResponse,ResetPasswordRequest,ProfileUpdate
-from app.security import hash_password, verify_password,create_access_token
-
+from app.security import create_refresh_tokens, hash_password, verify_password,create_access_token
+from app.utils import utc_now
 
 def register_user(request: RegisterRequest, db: Session):
 
@@ -71,11 +71,22 @@ def login_user(request: LoginRequest, db: Session):
         email=existing_user.email
     )
 
+    refresh_token , token_hash = create_refresh_tokens()
+
+    new_refresh_token = RefreshToken(
+        user_id=existing_user.user_id,
+        token_hash=token_hash,
+        expires_at = utc_now() + timedelta(days=7),
+        created_at = utc_now()
+    )
+
+    db.add(new_refresh_token)
+    db.commit()
+
     return {
         "user": existing_user,
         "access_token": access_token,
-        "first_name": existing_user.first_name,
-        "email": existing_user.email
+        "refresh_token": refresh_token
     }
 
 

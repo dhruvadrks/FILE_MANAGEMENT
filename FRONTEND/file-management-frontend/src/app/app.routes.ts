@@ -9,6 +9,8 @@ import { ErrorPage } from './error-page/error-page';
 import { Share } from './share/share';
 import { ShareLinks } from './dashboard/share-links/share-links';
 import { Profile } from './dashboard/profile/profile';
+import { authGuard } from './auth/auth-guard';
+import { share } from 'rxjs';
 
 export const routes: Routes = [
     {
@@ -35,7 +37,13 @@ export const routes: Routes = [
     {
         path : 'dashboard',
         component : Dashboard,
+        canActivate : [authGuard],
         children: [
+            {
+                path: '',
+                redirectTo: 'files',
+                pathMatch: 'full'
+            },
             {
                 path: 'files',
                 component: MyFiles
@@ -55,11 +63,20 @@ export const routes: Routes = [
         component: ErrorPage
     },
     {
+        path: 'share',
+        component: Share
+    },
+    {
         path: 'share/:token',
         component: Share
     },
     {
         path: 'profile',
-        component: Profile
+        component: Profile,
+        canActivate: [authGuard]
+    },
+    {
+        path: '**',
+        component: ErrorPage
     }
 ];

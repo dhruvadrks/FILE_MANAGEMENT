@@ -9,7 +9,8 @@ from app.handlers.sharing_handler import (
     access_share_handler,
     revoke_share_handler,
     get_all_shares_handler,
-    change_share_setting_handler
+    change_share_setting_handler,
+    sharelink_validate_handler
 )
 
 router = APIRouter(
@@ -78,3 +79,10 @@ def change_share_setting(
         current_user.user_id,
         db
     )
+
+@router.get("/sharelink/validate")
+def sharelink_validate(
+    token:str,
+    db:Session = Depends(get_db)
+):
+    return sharelink_validate_handler(token,db)

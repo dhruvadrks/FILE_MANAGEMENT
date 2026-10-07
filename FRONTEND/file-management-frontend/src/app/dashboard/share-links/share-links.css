@@ -2,116 +2,6 @@
     width: 100%;
 }
 
-.share-table {
-    width: 100%;
-    margin-top: 50px;
-
-    background-color: #1f1f20;
-
-    border-collapse: separate;
-    border-spacing: 0;
-
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.file-name {
-    color: white;
-}
-
-.file-name:hover {
-    color: #0a84ff;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.share-table th,
-.share-table td {
-    padding: 15px;
-    text-align: center;
-}
-
-.share-table thead th {
-    background-color: #2a2a2b;
-    color: #b3b3b3;
-    font-weight: 600;
-}
-
-.share-table tbody td {
-    color: white;
-}
-
-.share-table tbody tr {
-    border-bottom: 1px solid #3a3a3c;
-}
-
-.share-table tbody tr:hover {
-    background-color: #292929;
-}
-
-/* Filename */
-
-.share-table th:nth-child(1),
-.share-table td:nth-child(1) {
-    width: 35%;
-    text-align: left;
-}
-
-/* Created At */
-
-.share-table th:nth-child(2),
-.share-table td:nth-child(2) {
-    width: 20%;
-}
-
-/* Expires */
-
-.share-table th:nth-child(3),
-.share-table td:nth-child(3) {
-    width: 20%;
-}
-
-/* Settings */
-
-.share-table th:nth-child(4),
-.share-table td:nth-child(4) {
-    width: 12.5%;
-}
-
-/* Delete */
-
-.share-table th:nth-child(5),
-.share-table td:nth-child(5) {
-    width: 12.5%;
-}
-
-.share-table button {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-
-    font-size: 22px;
-
-    color: white;
-
-    transition: 0.2s ease;
-}
-
-.share-table button:hover {
-    color: #0a84ff;
-}
-
-
-
-.share-table .delete-button:hover {
-    color: #eb0808;
-}
-
-
-.share-links-page {
-    width: 100%;
-}
-
 /* =========================
    SHARE LINKS TABLE
 ========================= */
@@ -360,35 +250,54 @@
     background: #343436;
 }
 
+/* =========================
+   MESSAGE TOAST
+========================= */
+
 .message-overlay {
     position: fixed;
     top: 25px;
     left: 0;
+
     width: 100%;
+
     display: flex;
     justify-content: center;
+
     z-index: 1100;
 }
 
 .message-popup {
     width: 450px;
+
     background-color: #1f1f20;
+
     border: 1px solid #3a3a3c;
+
     border-radius: 12px;
+
     padding: 18px;
+
     animation: messageFade 0.2s ease;
 }
 
 .message-popup p {
     color: #22c55e;
+
     text-align: center;
+
     margin: 0;
+
     font-family: Calibri, sans-serif;
+
     font-size: 16px;
+
     font-weight: 600;
 }
 
-/* Popup animation */
+/* =========================
+   POPUP ANIMATION
+========================= */
 
 @keyframes popupFade {
     from {
@@ -422,7 +331,17 @@
 
 .settings-popup {
     width: 500px;
+
     margin: 3px 0px 12px;
+
+    max-height: 85vh;
+
+    /* Keep scrolling but hide scrollbar */
+    overflow-y: auto;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
     background: #1f1f20;
     color: white;
 
@@ -438,6 +357,16 @@
     animation: popupFade 0.3s ease;
 }
 
+/* Chrome, Edge, Safari */
+
+.settings-popup::-webkit-scrollbar {
+    display: none;
+}
+
+/* =========================
+   SHARE LINK
+========================= */
+
 .share-link-section {
     margin-top: 20px;
 }
@@ -449,31 +378,43 @@
 .share-link-row {
     display: flex;
     align-items: center;
+
     margin-bottom: 18px;
     margin-top: 7px;
+
     gap: 8px;
+
     width: 100%;
 }
 
 .share-link-row input {
     flex: 1;
     min-width: 0;
+
     padding: 10px 12px;
+
     border: 0px solid #d1d5db;
     border-radius: 6px;
+
     background-color: #2a2a2b;
     color: white;
+
     font-size: 14px;
 }
 
 .copy-link-button {
     width: 40px;
     height: 40px;
+
     border: none;
     border-radius: 6px;
+
     background-color: #2a2a2b;
+
     cursor: pointer;
+
     font-size: 18px;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -483,7 +424,9 @@
     background-color: #131313;
 }
 
-/* Heading */
+/* =========================
+   SETTINGS HEADING
+========================= */
 
 .settings-popup h2 {
     margin: 0 0 15px 0;
@@ -494,7 +437,9 @@
     font-weight: 600;
 }
 
-/* File name */
+/* =========================
+   FILE NAME
+========================= */
 
 .settings-popup p {
     margin: 10px 0 25px;
@@ -508,12 +453,18 @@
     color: white;
 }
 
-.owner-row{
+/* =========================
+   OWNER
+========================= */
+
+.owner-row {
     border-color: #0a84ff;
-    background:transparent;
+    background: transparent;
 }
 
-/* People with access */
+/* =========================
+   PEOPLE WITH ACCESS
+========================= */
 
 .settings-popup h3 {
     margin: 0 0 12px;
@@ -524,10 +475,13 @@
     font-weight: 600;
 }
 
-/* Permission row */
+/* =========================
+   PERMISSION ROW
+========================= */
 
 .permission-row {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
@@ -547,7 +501,9 @@
     font-size: 14px;
 }
 
-/* Remove permission */
+/* =========================
+   REMOVE PERMISSION
+========================= */
 
 .remove-permission-button {
     border: none;
@@ -567,30 +523,44 @@
     transform: scale(1.1);
 }
 
-/* Add permission */
+/* =========================
+   ADD PERMISSION
+========================= */
 
 .add-permission {
     display: flex;
+
     flex-direction: column;
+
     align-items: flex-start;
+
     gap: 5px;
+
     margin-top: 8px;
 }
 
 .add-permission input {
     width: 100%;
     height: 32px;
+
     padding: 0 10px;
+
     font-size: 13px;
+
     border: 1px solid #3a3a3c;
+
     background-color: #2a2a2b;
+
     border-radius: 5px;
+
     box-sizing: border-box;
+
     color: white;
 }
 
 .add-permission input:focus {
     outline: none;
+
     border: 1px solid #0a84ff;
 }
 
@@ -601,11 +571,16 @@
 .add-permission-button {
     width: 55px;
     height: 30px;
+
     font-size: 12px;
+
     border: none;
     border-radius: 5px;
+
     background-color: #2563eb;
+
     color: white;
+
     cursor: pointer;
 }
 
@@ -615,10 +590,15 @@
 
 .add-permission p {
     margin: 0;
+
     font-size: 12px;
+
     color: #dc2626;
 }
-/* Bottom buttons */
+
+/* =========================
+   SETTINGS BUTTONS
+========================= */
 
 .settings-buttons {
     display: flex;
@@ -686,6 +666,7 @@
 
 .current-expiry {
     margin: 0 0 8px;
+
     color: #b3b3b3;
 }
 
@@ -695,9 +676,11 @@
 
 .expiry-label {
     display: block;
+
     margin-bottom: 8px;
 
     color: #b3b3b3;
+
     font-size: 14px;
     font-weight: 600;
 }
@@ -708,6 +691,7 @@
 
 .expiry-input {
     width: 100%;
+
     box-sizing: border-box;
 
     padding: 10px 12px;
@@ -729,6 +713,7 @@
 
 .expiry-input::-webkit-calendar-picker-indicator {
     filter: invert(1);
+
     cursor: pointer;
 }
 
@@ -736,8 +721,13 @@
     margin-top: 8px;
 
     color: #777;
+
     font-size: 13px;
 }
+
+/* =========================
+   MESSAGE ANIMATION
+========================= */
 
 @keyframes messageFade {
     from {

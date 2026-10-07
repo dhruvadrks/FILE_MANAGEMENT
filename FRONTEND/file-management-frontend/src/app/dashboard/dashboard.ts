@@ -1,107 +1,166 @@
 import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MyFiles } from './my-files/my-files';
+import { AuthService } from '../auth/auth';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class Dashboard {
 
-  @ViewChild(RouterOutlet) routerOutlet!: RouterOutlet;
+  @ViewChild(RouterOutlet)
+  routerOutlet!: RouterOutlet;
 
   constructor(
     private http: HttpClient,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authservice: AuthService
   ) {}
 
-  showMessage = false
-  message = ''
+  showMessage = false;
+  message = '';
 
-  firstName = localStorage.getItem('first_name') || ''
+  firstName =
+    localStorage.getItem('first_name') || '';
 
-  activepage = 'files'
+  activepage = 'files';
 
   UploadFile(event: Event) {
 
-    const input = event.target as HTMLInputElement
+    const input =
+      event.target as HTMLInputElement;
 
-    if (!input.files || input.files.length === 0) {
-      return
+    if (
+      !input.files ||
+      input.files.length === 0
+    ) {
+
+      return;
+
     }
 
-    const file = input.files[0]
+    const file = input.files[0];
 
-    const formData = new FormData()
+    const formData = new FormData();
 
-    formData.append('file', file)
-
-    const token = localStorage.getItem('access_token')
+    formData.append('file', file);
 
     this.http.post(
-      'http://127.0.0.1:8000/files/upload',
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+      'http://localhost:8000/files/upload',
+      formData
     ).subscribe({
 
       next: response => {
 
-        input.value = ''
+        input.value = '';
 
-        this.showMessagePopup(`${file.name} uploaded successfully`)
+        this.showMessagePopup(
+          `${file.name} uploaded successfully`
+        );
 
-        const myfiles = this.routerOutlet.component as MyFiles
+        const myfiles =
+          this.routerOutlet.component as MyFiles;
 
-        myfiles.getFiles()
+        myfiles.getFiles();
 
       },
 
       error: error => {
 
-        input.value = ''
+        input.value = '';
 
-        this.showMessagePopup('File Upload Failed. Try again')
+        this.showMessagePopup(
+          'File Upload Failed. Try again'
+        );
 
       }
 
-    })
+    });
   }
 
-  showAllFiles(){
-    this.router.navigate(['/dashboard/files'])
-    const myfiles = this.routerOutlet.component as MyFiles
-    myfiles.showOnlyFavorites = false
-    this.activepage = 'files'
+  showAllFiles() {
+
+    this.router.navigate([
+      '/dashboard/files'
+    ]);
+
+    const myfiles =
+      this.routerOutlet.component as MyFiles;
+
+    myfiles.showOnlyFavorites = false;
+
+    this.activepage = 'files';
   }
 
-  showFavorites(){
-    this.router.navigate(['/dashboard/files/favorites'])
-    const myfiles = this.routerOutlet.component as MyFiles
-    myfiles.showOnlyFavorites = true
-    this.activepage = 'favorites'
+  showFavorites() {
+
+    this.router.navigate([
+      '/dashboard/files/favorites'
+    ]);
+
+    const myfiles =
+      this.routerOutlet.component as MyFiles;
+
+    myfiles.showOnlyFavorites = true;
+
+    this.activepage = 'favorites';
+  }
+
+  logout() {
+
+    this.http.post(
+      'http://localhost:8000/auth/logout',
+      {},
+      {
+        withCredentials: true
+      }
+    ).subscribe({
+
+      next: () => {
+
+        this.authservice.clearAccessToken();
+
+        localStorage.removeItem(
+          'first_name'
+        );
+
+        localStorage.removeItem(
+          'email'
+        );
+
+        this.router.navigate([
+          '/login'
+        ]);
+
+      }
+
+    });
   }
 
   showMessagePopup(text: string) {
 
-    this.message = text
-    this.showMessage = true
+    this.message = text;
 
-    this.cdr.detectChanges()
+    this.showMessage = true;
+
+    this.cdr.detectChanges();
 
     setTimeout(() => {
 
-      this.showMessage = false
+      this.showMessage = false;
 
-      this.cdr.detectChanges()
+      this.cdr.detectChanges();
 
-    }, 3000)
+    }, 3000);
   }
+
 }

@@ -7,14 +7,33 @@ from app.routes.auth import router as auth_router
 from app.routes.files import router as files_router
 from app.routes.search import router as search_router
 from app.routes.sharing import router as share_router
+from app.service.refresh_token_cleanup import delete_expired_refresh_tokens
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
     load_index()
-    yield
+
+    scheduler = BackgroundScheduler()
+
+    scheduler.add_job(
+        delete_expired_refresh_tokens,
+        "interval",
+        hours = 1
+    )
+
+    scheduler.start()
+    
+    try:
+        yield
+
+    finally:
+        scheduler.shutdown()
 
 app = FastAPI(lifespan=lifespan)
+
+delete_expired_refresh_tokens()
 
 app.add_middleware(
     CORSMiddleware,
