@@ -20,7 +20,7 @@ password_pepper = os.getenv("PASSWORD_PEPPER")
 
 ALGORITHM = "HS256"
 
-access_token_expiration_minutes = 10
+access_token_expiration_minutes = 100
 
 password_hash = PasswordHash.recommended()
 

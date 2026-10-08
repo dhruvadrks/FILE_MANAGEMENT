@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 import secrets
 from app.database.redis_client import redis_client
 from app.database.models import User, RefreshToken

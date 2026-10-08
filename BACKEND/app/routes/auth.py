@@ -4,7 +4,7 @@ from app.database.database import get_db
 from app.database.models import RefreshToken, User
 from app.security import create_access_token, create_refresh_tokens, get_current_user
 import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from app.schema.auth_schema import ForgotPasswordRequest, LoginResponse, PasswordResetResponse, RegisterRequest, RegisterResponse, LoginRequest, ResetPasswordRequest,ProfileResponse,ProfileUpdate
 from app.handlers.auth_handler import register_user,login_user,forgot_password_user,reset_password_user,validate_reset_token,get_profile_handler,update_profile_handler
 from app.utils import utc_now

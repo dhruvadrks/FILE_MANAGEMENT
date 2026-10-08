@@ -1,8 +1,16 @@
+import os
 import redis
+from dotenv import load_dotenv
+
+load_dotenv()
+
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = int(os.getenv("REDIS_PORT"))
+REDIS_DB = int(os.getenv("REDIS_DB"))
 
 redis_client = redis.Redis(
-    host = "localhost",
-    port = 6379,
-    db=0,
-    decode_responses = True
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    db=REDIS_DB,
+    decode_responses=True
 )

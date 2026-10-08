@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import List,Literal
+from typing import List
 from datetime import datetime
 
 class ShareRequest(BaseModel):

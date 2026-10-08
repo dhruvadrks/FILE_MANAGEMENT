@@ -1,12 +1,14 @@
 from sqlalchemy.orm import Session
 from pathlib import Path
 import numpy as np
+import tempfile
 from app.database.database import SessionLocal
 from app.database.models import File,Vector
 from app.service.text_extraction import extract_text
 from app.service.chunking import chunk_text
 from app.service.embedding import generate_embeddings
 from app.service.faiss_index import add_embeddings_and_save,remove_embeddings
+from app.service.s3_operations import get_file_from_s3
 
 def index_file(
         file_path:Path,
@@ -15,7 +17,7 @@ def index_file(
         db:Session
 ):
 
-    text=extract_text(file_path,file_type)
+    text = extract_text(file_path,file_type)
 
     chunks=chunk_text(text)
 
@@ -25,7 +27,6 @@ def index_file(
     embeddings=generate_embeddings(chunks)
 
     vector_rows=[]
-    faiss_added=False
 
     try:
 
@@ -49,7 +50,6 @@ def index_file(
             vector_ids
         )
 
-        faiss_added=True
 
         file=db.get(File,file_id)
 
@@ -72,15 +72,32 @@ def index_file(
         raise
 
 def background_index_file(
-    file_path: Path,
+    user_id: int,
     file_type: str,
     file_id: int
 ):
     db = SessionLocal()
 
+    temp_file_path = None
+
     try:
+
+        file_bytes = get_file_from_s3(
+            user_id=user_id,
+            file_id=file_id
+        )
+
+        if not file_bytes:
+            raise FileNotFoundError(
+                f"File {file_id} not found"
+            )
+
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file.write(file_bytes)
+            temp_file_path = Path(temp_file.name)
+
         index_file(
-            file_path=file_path,
+            file_path=temp_file_path,
             file_type=file_type,
             file_id=file_id,
             db=db
@@ -90,4 +107,8 @@ def background_index_file(
         print(f"indexing failed for file id = {file_id}:{e}")
 
     finally:
+        if temp_file_path is not None:
+            if temp_file_path.exists():
+                temp_file_path.unlink()
+
         db.close()

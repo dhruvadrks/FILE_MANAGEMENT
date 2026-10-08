@@ -1,13 +1,12 @@
 from datetime import datetime, timezone, timedelta
-import hashlib
 import secrets
-from pathlib import Path
-from fastapi import HTTPException, status
-from fastapi.responses import FileResponse
+from fastapi import HTTPException, status, Response
 from sqlalchemy.orm import Session
 from app.utils import utc_now
 from app.database.models import Sharelink, Permission, File, User
-from app.schema.sharing_schema import ShareRequest,ShareChange
+from app.schema.sharing_schema import ShareRequest, ShareChange
+from app.service.s3_operations import get_file_from_s3
+
 
 def create_share_handler(
     file_id: int,
@@ -137,6 +136,7 @@ def create_share_handler(
         "share_link": share_link
     }
 
+
 def access_share_handler(
     token: str,
     user_email: str,
@@ -173,6 +173,7 @@ def access_share_handler(
         )
 
     if expires_at <= now:
+
         share_token.status = False
         db.commit()
 
@@ -201,6 +202,7 @@ def access_share_handler(
         pass
 
     else:
+
         permission = (
             db.query(Permission)
             .filter(
@@ -230,28 +232,36 @@ def access_share_handler(
             detail="File not found"
         )
 
-    file_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / "storage"
-        / f"user_{file.user_id}"
-        / f"file_{file.file_id}"
+    # Get the file from S3
+    file_bytes = get_file_from_s3(
+        user_id=file.user_id,
+        file_id=file.file_id
     )
 
-    if not file_path.exists():
+    if not file_bytes:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            detail="File not found in storage"
         )
 
-    return FileResponse(
-        path=file_path,
-        media_type=file.file_type,
-        filename=file.file_name
+    media_type = file.file_type
+
+    if not media_type:
+        media_type = "application/octet-stream"
+
+    return Response(
+        content=file_bytes,
+        media_type=media_type,
+        headers={
+            "Content-Disposition": (
+                f'inline; filename="{file.file_name}"'
+            )
+        }
     )
 
 
 def revoke_share_handler(
-    share_id:int,
+    share_id: int,
     user_id: int,
     db: Session
 ):
@@ -289,15 +299,19 @@ def revoke_share_handler(
         "message": "Share link revoked successfully"
     }
 
+
 def get_all_shares_handler(
     user_id: int,
     db: Session
 ):
+
     now = datetime.now(timezone.utc)
 
     owner = (
         db.query(User)
-        .filter(User.user_id == user_id)
+        .filter(
+            User.user_id == user_id
+        )
         .first()
     )
 
@@ -345,24 +359,26 @@ def get_all_shares_handler(
                 for permission in permissions
             ],
             "created_at": share_link.created_at,
-            "share_token":share_link.token,
+            "share_token": share_link.token,
             "expires_at": share_link.expires_at,
             "status": share_link.status
         })
 
     return result
 
+
 def change_share_setting_handler(
-        share_id: int,
-        request: ShareChange,
-        user_id: int,
-        db: Session
+    share_id: int,
+    request: ShareChange,
+    user_id: int,
+    db: Session
 ):
+
     share_link = (
         db.query(Sharelink)
         .join(
             File,
-            File.file_id == Sharelink.file_id
+            Sharelink.file_id == File.file_id
         )
         .filter(
             Sharelink.share_id == share_id,
@@ -387,6 +403,7 @@ def change_share_setting_handler(
         )
 
     if expires_at <= now:
+
         share_link.status = False
         db.commit()
 
@@ -396,6 +413,7 @@ def change_share_setting_handler(
         )
 
     if not share_link.status:
+
         raise HTTPException(
             status_code=status.HTTP_410_GONE,
             detail="Share link Invalid or expired"
@@ -411,6 +429,7 @@ def change_share_setting_handler(
             )
 
         if expires_at <= now:
+
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Expiry time must be in the future"
@@ -445,10 +464,13 @@ def change_share_setting_handler(
     )
 
     for permission in permissions:
+
         if permission.email in emails_to_delete:
+
             db.delete(permission)
 
     for email in emails_to_add:
+
         permission = Permission(
             share_id=share_id,
             email=email
@@ -457,9 +479,11 @@ def change_share_setting_handler(
         db.add(permission)
 
     try:
+
         db.commit()
 
     except Exception:
+
         db.rollback()
 
         raise HTTPException(
@@ -473,9 +497,10 @@ def change_share_setting_handler(
         "expires_at": share_link.expires_at
     }
 
+
 def sharelink_validate_handler(
-        token:str,
-        db:Session
+    token: str,
+    db: Session
 ):
 
     existing_token = (
@@ -489,12 +514,20 @@ def sharelink_validate_handler(
     now = utc_now()
 
     if not existing_token:
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid Share Link"
         )
 
-    if existing_token.expires_at <= now:
+    expires_at = existing_token.expires_at
+
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(
+            tzinfo=timezone.utc
+        )
+
+    if expires_at <= now:
 
         existing_token.status = False
         db.commit()
@@ -512,5 +545,5 @@ def sharelink_validate_handler(
         )
 
     return {
-        "message" : "Sharelink is valid"
+        "message": "Sharelink is valid"
     }

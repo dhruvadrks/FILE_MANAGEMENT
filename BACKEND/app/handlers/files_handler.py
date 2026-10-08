@@ -1,14 +1,13 @@
 from datetime import datetime, timezone
-from pathlib import Path
 import numpy as np
-from fastapi import UploadFile, BackgroundTasks,HTTPException,status
-from fastapi.responses import FileResponse
+from fastapi import UploadFile, BackgroundTasks,HTTPException,status, Response
 from sqlalchemy.orm import Session
 from magika import Magika
 from app.database.models import File, Upload,Sharelink,Vector
-from app.service.storage import save_file
+from app.service.s3_operations import *
 from app.service.indexing import background_index_file
 from app.service.faiss_index import remove_embeddings
+from s3_client import s3,BUCKET_NAME
 
 
 m = Magika()
@@ -32,7 +31,8 @@ def upload_file_handler(
 
     file_type = result.output.mime_type
 
-    file_path = None
+    # file_path = None
+    s3_key = None
 
     try:
         # Create a new file record
@@ -50,8 +50,7 @@ def upload_file_handler(
         db.add(new_file)
         db.flush()
 
-        # Save physical file using file_id
-        file_path = save_file(
+        s3_key = upload_to_s3(
             user_id=user_id,
             file_id=new_file.file_id,
             file=file
@@ -72,20 +71,20 @@ def upload_file_handler(
     except Exception:
         db.rollback()
 
-        if file_path is not None:
-            path = Path(file_path)
-
-            if path.exists():
-                path.unlink()
-
+        if s3_key is not None:
+            s3.delete_object(
+                Bucket = BUCKET_NAME,
+                Key = s3_key
+            )
         raise
+
 
     db.refresh(new_file)
     db.refresh(new_upload)
 
     background_tasks.add_task(
         background_index_file,
-        file_path,
+        user_id,
         new_file.file_type,
         new_file.file_id
     )
@@ -155,27 +154,30 @@ def view_file_handler(
             detail="File not found"
         )
 
-    file_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / "storage"
-        / f"user_{user_id}"
-        / f"file_{file.file_id}"
+
+    file_bytes = get_file_from_s3(
+        user_id=user_id,
+        file_id=file.file_id
     )
 
-    if not file_path.exists():
+    if not file_bytes:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+            detail="File not found in storage"
         )
+
 
     media_type = file.file_type
 
     if not media_type:
         media_type = "application/octet-stream"
 
-    return FileResponse(
-        path=file_path,
-        media_type=media_type
+    return Response(
+        content=file_bytes,
+        media_type=media_type,
+        headers={
+            "Content-Disposition": f'inline; filename="{file.file_name}"'
+        }
     )
 
 def download_file_handler(
@@ -198,28 +200,30 @@ def download_file_handler(
             detail="File not found"
         )
 
-    file_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / "storage"
-        / f"user_{user_id}"
-        / f"file_{file.file_id}"
+
+    file_bytes = get_file_from_s3(
+        user_id=user_id,
+        file_id=file.file_id
     )
 
-    if not file_path.exists():
+    if not file_bytes:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="File not found in storage"
         )
+
 
     media_type = file.file_type
 
     if not media_type:
         media_type = "application/octet-stream"
 
-    return FileResponse(
-        path=file_path,
+    return Response(
+        content=file_bytes,
         media_type=media_type,
-        filename=file.file_name
+        headers={
+            "Content-Disposition": f'attachment; filename="{file.file_name}"'
+        }
     )
 
 def favorite_file_handler(
@@ -302,18 +306,14 @@ def delete_file_handler(
             detail="File not found"
         )
 
-    path_to_file = (
-        Path(__file__).resolve().parent.parent.parent
-        / "storage"
-        / f"user_{user_id}"
-        / f"file_{file_id}"
-    )
+    s3_key = f"user_{user_id}/file_{file_id}"
+    
 
     try:
-        if path_to_file.exists():
-            path_to_file.unlink()
-        else:
-            raise FileNotFoundError("File does not exist in storage")
+        s3.delete_object(
+            Bucket=BUCKET_NAME,
+            Key=s3_key
+        )
 
     except Exception as e:
         raise HTTPException(
