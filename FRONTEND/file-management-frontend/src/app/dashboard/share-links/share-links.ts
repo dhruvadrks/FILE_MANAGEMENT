@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { DatePipe } from '@angular/common';
+import { DatePipe,CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 interface ShareLink {
@@ -13,11 +13,12 @@ interface ShareLink {
   share_token: string;
   expires_at: string;
   status: boolean;
+  file_type: string
 }
 
 @Component({
   selector: 'app-share-links',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule,CommonModule],
   templateUrl: './share-links.html',
   styleUrl: './share-links.css',
 })
@@ -35,6 +36,7 @@ export class ShareLinks implements OnInit {
 
   showMessage = false;
   message = '';
+  messageType: 'success' | 'error' = 'success';
 
   minExpiryDate = '';
   changeExpiryTime = '';
@@ -54,9 +56,34 @@ export class ShareLinks implements OnInit {
 
   }
 
-  get_all_shares() {
+  getFileTypeInfo(fileType: string): { label: string; class: string } {
 
-    console.log('GETTING SHARE LINKS');
+  const type = fileType.toLowerCase();
+
+  if (type.includes('pdf')) return { label: 'PDF', class: 'type-pdf' };
+  if (type.includes('word')) return { label: 'DOC', class: 'type-doc' };
+  if (type.includes('excel') || type.includes('spreadsheet') || type === 'text/csv') return { label: 'XLS', class: 'type-sheet' };
+  if (type.includes('powerpoint') || type.includes('presentation')) return { label: 'PPT', class: 'type-slide' };
+  if (type.includes('zip') || type.includes('rar') || type.includes('7z') || type.includes('tar') || type.includes('compressed')) return { label: 'ZIP', class: 'type-archive' };
+  if (type.includes('json')) return { label: 'JSON', class: 'type-code' };
+  if (type.includes('python')) return { label: 'PY', class: 'type-code' };
+  if (type.includes('javascript') || type.includes('typescript')) return { label: 'JS', class: 'type-code' };
+  if (type.includes('html')) return { label: 'HTML', class: 'type-code' };
+  if (type.includes('css')) return { label: 'CSS', class: 'type-code' };
+  if (type.includes('executable') || type.includes('x-msdownload') || type.includes('x-elf')) return { label: 'EXE', class: 'type-exe' };
+  if (type.includes('empty')) return { label: 'EMPTY', class: 'type-txt' };
+  if (type === 'text/plain') return { label: 'TXT', class: 'type-txt' };
+
+  if (type.startsWith('image/')) return { label: type.split('/')[1].toUpperCase(), class: 'type-image' };
+  if (type.startsWith('video/')) return { label: 'VIDEO', class: 'type-default' };
+  if (type.startsWith('audio/')) return { label: 'AUDIO', class: 'type-default' };
+
+  const subtype = (type.split('/')[1] || type).toUpperCase().slice(0, 5);
+
+  return { label: subtype, class: 'type-default' };
+ }
+
+  get_all_shares() {
 
     this.http.get<ShareLink[]>(
       'http://localhost:8000/share'
@@ -64,7 +91,7 @@ export class ShareLinks implements OnInit {
 
       next: response => {
 
-        console.log(response);
+        console.log(response)
 
         this.sharelinks = response;
 
@@ -144,8 +171,6 @@ export class ShareLinks implements OnInit {
 
       next: response => {
 
-        console.log(response);
-
         this.sharelinks =
           this.sharelinks.filter(
             sharelink =>
@@ -155,7 +180,8 @@ export class ShareLinks implements OnInit {
         this.closeRevokePopup();
 
         this.showMessagePopup(
-          `Share Link successfully revoked for ${filename}`
+          `Share Link successfully revoked for ${filename}`,
+          'success'
         );
 
         this.cdr.detectChanges();
@@ -169,7 +195,8 @@ export class ShareLinks implements OnInit {
         this.closeRevokePopup();
 
         this.showMessagePopup(
-          `Failed to revoke Share Link for ${filename}`
+          `Failed to revoke Share Link for ${filename}`,
+          'error'
         );
 
       }
@@ -179,28 +206,38 @@ export class ShareLinks implements OnInit {
 
   setMinExpiryDate() {
 
-    const now = new Date();
+    const today = new Date();
 
-    const year = now.getFullYear();
+    const year = today.getFullYear();
 
     const month =
-      String(now.getMonth() + 1)
+      String(today.getMonth() + 1)
         .padStart(2, '0');
 
     const day =
-      String(now.getDate())
-        .padStart(2, '0');
-
-    const hours =
-      String(now.getHours())
-        .padStart(2, '0');
-
-    const minutes =
-      String(now.getMinutes())
+      String(today.getDate())
         .padStart(2, '0');
 
     this.minExpiryDate =
-      `${year}-${month}-${day}T${hours}:${minutes}`;
+      `${year}-${month}-${day}`;
+
+  }
+
+  buildExpiry(dateValue: string): string {
+
+    const [year, month, day] =
+      dateValue.split('-').map(Number);
+
+    const later = new Date(Date.now() + 60000);
+
+    return new Date(
+      year,
+      month - 1,
+      day,
+      later.getHours(),
+      later.getMinutes(),
+      later.getSeconds()
+    ).toISOString();
 
   }
 
@@ -209,6 +246,8 @@ export class ShareLinks implements OnInit {
     this.showSettingsPopup = true;
 
     this.SelectedShareLink = share;
+
+    this.changeExpiryTime = '';
 
   }
 
@@ -245,7 +284,8 @@ export class ShareLinks implements OnInit {
       if (!emailPattern.test(email)) {
 
           this.showMessagePopup(
-              'Please enter a valid email address'
+              'Please enter a valid email address',
+              'error'
           );
 
           this.newPermissionEmail = '';
@@ -331,7 +371,8 @@ export class ShareLinks implements OnInit {
     navigator.clipboard.writeText(sharelink);
 
     this.showMessagePopup(
-      'Share link copied to clipboard'
+      'Share link copied to clipboard',
+      'success'
     );
 
   }
@@ -353,9 +394,7 @@ export class ShareLinks implements OnInit {
     if (this.changeExpiryTime) {
 
       request.expires_at =
-        new Date(
-          this.changeExpiryTime
-        ).toISOString();
+        this.buildExpiry(this.changeExpiryTime);
 
     }
 
@@ -372,7 +411,8 @@ export class ShareLinks implements OnInit {
         this.closeSettingPopup();
 
         this.showMessagePopup(
-          `Share settings Updated successfully for ${filename}`
+          `Share settings Updated successfully for ${filename}`,
+          'success'
         );
 
         this.newPermissionEmail = '';
@@ -385,12 +425,20 @@ export class ShareLinks implements OnInit {
 
         this.closeSettingPopup();
 
-        this.showMessagePopup(
-          `Failed to change share settings for ${filename}`
-        );
+        if (error.status === 422) {
 
-        if(error.status === 422){
-          this.showMessagePopup("Invalid email(s) provided Failed to add permissions")
+          this.showMessagePopup(
+            'Invalid email(s) provided. Failed to add permissions',
+            'error'
+          );
+
+        } else {
+
+          this.showMessagePopup(
+            `Failed to change share settings for ${filename}`,
+            'error'
+          );
+
         }
 
         this.cdr.detectChanges();
@@ -401,9 +449,10 @@ export class ShareLinks implements OnInit {
 
   }
 
-  showMessagePopup(text: string) {
+  showMessagePopup(text: string, type: 'success' | 'error' = 'success') {
 
     this.message = text;
+    this.messageType = type;
 
     this.showMessage = true;
 

@@ -1,7 +1,10 @@
 <div class="share-links-page">
 
-    <table class="share-table">
+    <div class="page-head">
+        <h2>ShareLinks</h2>
+    </div>
 
+    <table class="share-table">
         <thead>
             <tr>
                 <th>Filename</th>
@@ -13,20 +16,27 @@
         </thead>
 
         <tbody>
-
             @for (share of sharelinks; track share.share_id) {
+                @let fileType = getFileTypeInfo(share.file_type);
 
                 <tr>
+                    <td class="file-name" (click)="ViewFile(share)">
+                        <div class="file-name-cell">
+                            <span
+                                class="file-type-badge"
+                                [ngClass]="fileType.class"
+                            >
+                                {{ fileType.label }}
+                            </span>
 
-                    <td
-                    class="file-name"
-                    (click)="ViewFile(share)"
-                    >
-                        {{ share.file_name }}
+                            <span>
+                                {{ share.file_name }}
+                            </span>
+                        </div>
                     </td>
 
                     <td>
-                        {{share.created_at | date:'dd-MM-yyyy'}}
+                        {{ share.created_at | date:'dd-MM-yyyy' }}
                     </td>
 
                     <td>
@@ -35,7 +45,10 @@
 
                     <td>
                         <button
-                        (click)="openSettingPopup(share)"
+                            type="button"
+                            class="icon-btn"
+                            (click)="openSettingPopup(share)"
+                            aria-label="Share settings"
                         >
                             ⚙
                         </button>
@@ -43,33 +56,41 @@
 
                     <td>
                         <button
-                        class="delete-button"
-                        (click)="openRevokePopup(share)"
+                            type="button"
+                            class="icon-btn danger"
+                            (click)="openRevokePopup(share)"
+                            aria-label="Revoke share link"
                         >
                             🗑
                         </button>
                     </td>
-
                 </tr>
-
             }
 
+            @if (sharelinks.length === 0) {
+                <tr class="empty-row">
+                    <td colspan="5">
+                        No files are currently shared.
+                    </td>
+                </tr>
+            }
         </tbody>
-
     </table>
 
 </div>
 
-@if(showRevokePopup){
+@if (showRevokePopup) {
     <div class="delete-overlay">
         <div class="delete-popup">
             <h2>Revoke Link</h2>
+
             <p>
-                Are you sure you want to Revoke Share Link for
-                <strong>{{SelectedShareLink?.file_name}}</strong> 
+                Are you sure you want to revoke the share link for
+                <strong>{{ SelectedShareLink?.file_name }}</strong>?
             </p>
+
             <div class="delete-buttons">
-                <button 
+                <button
                     type="button"
                     class="confirm-delete-button"
                     (click)="revokeShareLink()"
@@ -84,33 +105,28 @@
                 >
                     Cancel
                 </button>
-
             </div>
         </div>
     </div>
 }
 
-@if(showSettingsPopup){ 
-    <div class="settings-overlay"> 
- 
-        <div class="settings-popup"> 
- 
-            <h2>Share Settings</h2> 
- 
-            <p> 
-                File: 
-                <strong>{{SelectedShareLink?.file_name}}</strong> 
-            </p>
-            
-            <div class="share-link-section">
+@if (showSettingsPopup) {
+    <div class="settings-overlay">
+        <div class="settings-popup">
+            <h2>Share Settings</h2>
 
+            <p>
+                File:
+                <strong>{{ SelectedShareLink?.file_name }}</strong>
+            </p>
+
+            <div class="share-link-section">
                 <h3>Share Link</h3>
 
                 <div class="share-link-row">
-
                     <input
                         type="text"
-                        [value] = "'http://localhost:4200/share/' + SelectedShareLink?.share_token"
+                        [value]="'http://localhost:4200/share/' + SelectedShareLink?.share_token"
                         readonly
                     >
 
@@ -119,63 +135,61 @@
                         class="copy-link-button"
                         (click)="copyShareLink(SelectedShareLink!)"
                         title="Copy share link"
+                        aria-label="Copy share link"
                     >
                         📋
                     </button>
                 </div>
-
             </div>
 
             <div class="permission-row owner-row">
-                {{SelectedShareLink?.owner_email}} (Owner)
+                {{ SelectedShareLink?.owner_email }} (Owner)
             </div>
- 
-            <h3>People with access</h3> 
- 
-            @for (email of SelectedShareLink?.emails ?? []; track email) { 
-                <div class="permission-row"> 
-                    <span>{{email}}</span> 
- 
-                    <button 
-                        type="button" 
-                        class="remove-permission-button" 
-                        (click)="removePermission(email)"
-                    > 
-                        ✕ 
-                    </button> 
-                </div> 
-            } 
- 
-            <div class="add-permission"> 
-                <input 
-                    type="email" 
-                    placeholder="Enter email address" 
-                    [(ngModel)]="newPermissionEmail"
-                > 
- 
-                <button 
-                    type="button" 
-                    class="add-permission-button"
-                    (click)="addPermission()" 
-                > 
-                    Add 
-                </button> 
 
-                @if(ownerEmailError){
-                    <p>File owner aready has permission</p>
+            <h3>People with access</h3>
+
+            @for (email of SelectedShareLink?.emails ?? []; track email) {
+                <div class="permission-row">
+                    <span>{{ email }}</span>
+
+                    <button
+                        type="button"
+                        class="remove-permission-button"
+                        (click)="removePermission(email)"
+                        [attr.aria-label]="'Remove access for ' + email"
+                    >
+                        ✕
+                    </button>
+                </div>
+            }
+
+            <div class="add-permission">
+                <input
+                    type="email"
+                    placeholder="Enter email address"
+                    [(ngModel)]="newPermissionEmail"
+                >
+
+                <button
+                    type="button"
+                    class="add-permission-button"
+                    (click)="addPermission()"
+                >
+                    Add
+                </button>
+
+                @if (ownerEmailError) {
+                    <p>File owner already has permission.</p>
                 }
             </div>
 
-            <!-- LINK EXPIRY -->
-
             <div class="expiry-section">
-
                 <h3>Link expiry</h3>
 
                 <p class="current-expiry">
                     Current expiry:
                     <strong>
-                        {{SelectedShareLink?.expires_at | date:'dd-MM-yyyy'}}
+                        {{ SelectedShareLink?.expires_at | date:'dd-MM-yyyy' }}
                     </strong>
                 </p>
 
@@ -184,59 +198,47 @@
                 </label>
 
                 <div class="expiry-picker">
-
                     <input
                         type="date"
                         class="expiry-input"
                         [min]="minExpiryDate"
-                        [(ngModel)] = "changeExpiryTime"
+                        [(ngModel)]="changeExpiryTime"
                     >
-
                 </div>
 
                 <p class="expiry-help">
-                    Select the date and time when this share link should expire.
+                    The link expires on the date you choose, at the time you save it.
                 </p>
-
             </div>
- 
-            <div class="settings-buttons"> 
- 
-                <button 
-                    type="button" 
-                    class="save-settings-button" 
+
+            <div class="settings-buttons">
+                <button
+                    type="button"
+                    class="save-settings-button"
                     (click)="shareSettings()"
-                > 
-                    Save 
-                </button> 
- 
-                <button 
-                    type="button" 
-                    class="cancel-settings-button" 
-                    (click)="closeSettingPopup()" 
-                > 
-                    Cancel 
-                </button> 
- 
-            </div> 
- 
-        </div> 
- 
-    </div> 
+                >
+                    Save
+                </button>
+
+                <button
+                    type="button"
+                    class="cancel-settings-button"
+                    (click)="closeSettingPopup()"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
 }
 
-@if(showMessage) {
-
+@if (showMessage) {
     <div class="message-overlay">
-
-        <div class="message-popup">
-
-            <p>
-                {{message}}
-            </p>
-
+        <div
+            class="message-popup"
+            [class.error]="messageType === 'error'"
+        >
+            <p>{{ message }}</p>
         </div>
-
     </div>
-
 }

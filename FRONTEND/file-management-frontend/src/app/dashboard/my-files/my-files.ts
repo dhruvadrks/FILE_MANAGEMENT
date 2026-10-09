@@ -1,17 +1,9 @@
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, HostListener } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { DatePipe } from '@angular/common';
+import { DatePipe,CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
-interface File {
-  file_id: number;
-  file_name: string;
-  file_size: number;
-  updated_at: string;
-  is_favorite: boolean;
-  is_indexed: boolean;
-}
+import { FilesStore, File } from '../files-store';
 
 interface ShareLink {
   share_id: number;
@@ -33,16 +25,22 @@ interface FavoriteResponse {
 
 @Component({
   selector: 'app-my-files',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule,CommonModule],
   templateUrl: './my-files.html',
   styleUrl: './my-files.css'
 })
 export class MyFiles implements OnInit {
 
-  files: File[] = [];
+  get files(): File[] {
+    return this.store.files;
+  }
+  set files(value: File[]) {
+    this.store.files = value;
+  }
 
   searchText = '';
   searchType = 'filename';
+  showingContentResults = false;
 
   showSharePopup = false;
   selectedFile: File | null = null;
@@ -69,39 +67,134 @@ export class MyFiles implements OnInit {
 
   showMessage = false;
   message = '';
+  messageType: 'success' | 'error' = 'success';
 
   showOnlyFavorites = false;
+
+  openMenuId: number | null = null;
+  menuTop = 0;
+  menuLeft = 0;
 
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private store: FilesStore
   ) {}
 
   ngOnInit() {
 
     this.setMinExpiryDate();
 
-    if (this.route.snapshot.routeConfig?.path === 'files/favorites') {
+    if (this.route.snapshot.routeConfig?.path === 'favorites') {
       this.showOnlyFavorites = true;
+    }
+
+    if (this.store.loaded) {
+      this.cdr.detectChanges();
+      return;
     }
 
     this.getFiles();
   }
 
+  get visibleFiles(): File[] {
+
+    let result = this.files;
+
+    if (this.showOnlyFavorites) {
+
+      result = result.filter(file => file.is_favorite);
+
+    }
+
+    if (this.searchType === 'filename' && this.searchText.trim() !== '') {
+
+      const terms = this.searchText.trim().toLowerCase().split(/\s+/);
+
+      result = result.filter(file => {
+
+        const name = file.file_name.toLowerCase();
+
+        return terms.every(term => name.includes(term));
+
+      });
+
+    }
+
+    return result;
+
+  }
+
+  onSearchTypeChange(type: string) {
+
+    this.searchType = type;
+
+    if (type === 'filename' && this.showingContentResults) {
+
+      this.showingContentResults = false;
+
+      this.getFiles();
+
+    }
+
+  }
+
   setMinExpiryDate() {
 
-    const now = new Date();
+    // Earliest selectable expiry is today (date only, YYYY-MM-DD)
+    const today = new Date();
 
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
 
-    this.minExpiryDate =
-      `${year}-${month}-${day}T${hours}:${minutes}`;
+    this.minExpiryDate = `${year}-${month}-${day}`;
   }
+
+  buildExpiry(dateValue: string): string {
+
+    // Chosen date + current time plus 1 second, sent as an ISO timestamp
+    const [year, month, day] = dateValue.split('-').map(Number);
+
+    const later = new Date(Date.now() + 1000);
+
+    return new Date(
+      year,
+      month - 1,
+      day,
+      later.getHours(),
+      later.getMinutes(),
+      later.getSeconds()
+    ).toISOString();
+  }
+
+  getFileTypeInfo(fileType: string): { label: string; class: string } {
+
+  const type = fileType.toLowerCase();
+
+  if (type.includes('pdf')) return { label: 'PDF', class: 'type-pdf' };
+  if (type.includes('word')) return { label: 'DOC', class: 'type-doc' };
+  if (type.includes('excel') || type.includes('spreadsheet') || type === 'text/csv') return { label: 'XLS', class: 'type-sheet' };
+  if (type.includes('powerpoint') || type.includes('presentation')) return { label: 'PPT', class: 'type-slide' };
+  if (type.includes('zip') || type.includes('rar') || type.includes('7z') || type.includes('tar') || type.includes('compressed')) return { label: 'ZIP', class: 'type-archive' };
+  if (type.includes('json')) return { label: 'JSON', class: 'type-code' };
+  if (type.includes('python')) return { label: 'PY', class: 'type-code' };
+  if (type.includes('javascript') || type.includes('typescript')) return { label: 'JS', class: 'type-code' };
+  if (type.includes('html')) return { label: 'HTML', class: 'type-code' };
+  if (type.includes('css')) return { label: 'CSS', class: 'type-code' };
+  if (type.includes('executable') || type.includes('x-msdownload') || type.includes('x-elf')) return { label: 'EXE', class: 'type-exe' };
+  if (type.includes('empty')) return { label: 'EMPTY', class: 'type-txt' };
+  if (type === 'text/plain') return { label: 'TXT', class: 'type-txt' };
+
+  if (type.startsWith('image/')) return { label: type.split('/')[1].toUpperCase(), class: 'type-image' };
+  if (type.startsWith('video/')) return { label: 'VIDEO', class: 'type-default' };
+  if (type.startsWith('audio/')) return { label: 'AUDIO', class: 'type-default' };
+
+  const subtype = (type.split('/')[1] || type).toUpperCase().slice(0, 5);
+
+  return { label: subtype, class: 'type-default' };
+ }
 
   getFiles() {
 
@@ -111,7 +204,12 @@ export class MyFiles implements OnInit {
 
       next: response => {
 
+        console.log(response)
+
         this.files = response;
+        this.store.loaded = true;
+
+        this.showingContentResults = false;
 
         this.cdr.detectChanges();
       },
@@ -125,9 +223,12 @@ export class MyFiles implements OnInit {
     });
   }
 
+
   searchTextChanged() {
 
-    if (this.searchText.trim() === '') {
+    if (this.searchText.trim() === '' && this.showingContentResults) {
+
+      this.showingContentResults = false;
 
       this.getFiles();
 
@@ -137,6 +238,12 @@ export class MyFiles implements OnInit {
 
   searchFiles() {
 
+    if (this.searchType === 'filename') {
+
+      return;
+
+    }
+
     if (this.searchText.trim() === '') {
 
       this.getFiles();
@@ -144,78 +251,37 @@ export class MyFiles implements OnInit {
       return;
     }
 
-    if (this.searchType === 'filename') {
-
-      this.http.get<File>(
-        'http://localhost:8000/search/name',
-        {
-          params: {
-            file_name: this.searchText
-          }
+    this.http.get<File[]>(
+      'http://localhost:8000/search/query',
+      {
+        params: {
+          query: this.searchText
         }
-      ).subscribe({
+      }
+    ).subscribe({
 
-        next: response => {
+      next: response => {
 
-          this.files = [response];
+        this.files = response;
 
-          this.cdr.detectChanges();
+        this.showingContentResults = true;
 
-        },
+        this.cdr.detectChanges();
 
-        error: error => {
+      },
 
-          if (error.status === 404) {
+      error: error => {
 
-            this.showMessagePopup(
-              `No matching files found for "${this.searchText}"`
-            );
+        this.showMessagePopup(
+          `No matching files found for "${this.searchText}"`,
+          'error'
+        );
 
-            this.cdr.detectChanges();
+        this.cdr.detectChanges();
 
-            this.getFiles();
+      }
 
-            return;
-          }
-
-        }
-
-      });
-
-    }
-
-    if (this.searchType === 'content') {
-
-      this.http.get<File[]>(
-        'http://localhost:8000/search/query',
-        {
-          params: {
-            query: this.searchText
-          }
-        }
-      ).subscribe({
-
-        next: response => {
-
-          this.files = response;
-
-          this.cdr.detectChanges();
-
-        },
-
-        error: error => {
-
-          this.showMessagePopup(
-            `No matching files found for "${this.searchText}"`
-          );
-
-          this.cdr.detectChanges();
-
-        }
-
-      });
-
-    }
+    });
 
   }
 
@@ -280,7 +346,8 @@ export class MyFiles implements OnInit {
       error: error => {
 
         this.showMessagePopup(
-          `Failed to mark ${file.file_name} as Favorite`
+          `Failed to mark ${file.file_name} as Favorite`,
+          'error'
         );
 
       }
@@ -314,11 +381,59 @@ export class MyFiles implements OnInit {
     });
   }
 
-  handleAction(event: Event, file: File) {
+  /* =========================
+  ACTIONS MENU
+  ========================= */
 
-    const select = event.target as HTMLSelectElement;
+  toggleActionMenu(event: MouseEvent, file: File) {
 
-    const action = select.value;
+    event.stopPropagation();
+
+    if (this.openMenuId === file.file_id) {
+
+      this.closeActionMenu();
+
+      return;
+    }
+
+    const button = event.currentTarget as HTMLElement;
+
+    const rect = button.getBoundingClientRect();
+
+    const menuHeight = 164;
+
+    const openUp =
+      rect.bottom + menuHeight + 8 > window.innerHeight;
+
+    this.menuTop = openUp
+      ? rect.top - menuHeight - 6
+      : rect.bottom + 6;
+
+    this.menuLeft = Math.max(8, rect.right - 160);
+
+    this.openMenuId = file.file_id;
+
+    this.cdr.detectChanges();
+  }
+
+  @HostListener('document:click')
+  @HostListener('document:keydown.escape')
+  @HostListener('window:resize')
+  closeActionMenu() {
+
+    if (this.openMenuId === null) {
+
+      return;
+    }
+
+    this.openMenuId = null;
+
+    this.cdr.detectChanges();
+  }
+
+  runAction(action: string, file: File) {
+
+    this.closeActionMenu();
 
     if (action === 'download') {
 
@@ -343,8 +458,6 @@ export class MyFiles implements OnInit {
       this.openSharePopup(file);
 
     }
-
-    select.value = '';
   }
 
   download(file: File) {
@@ -383,7 +496,8 @@ export class MyFiles implements OnInit {
       error: error => {
 
         this.showMessagePopup(
-          `Failed to download ${file.file_name} Please try again`
+          `Failed to download ${file.file_name} Please try again`,
+          'error'
         );
 
       }
@@ -452,7 +566,8 @@ export class MyFiles implements OnInit {
         this.closeRenamePopup();
 
         this.showMessagePopup(
-          error.error?.detail || 'Failed to rename file'
+          error.error?.detail || 'Failed to rename file',
+          'error'
         );
 
       }
@@ -508,7 +623,8 @@ export class MyFiles implements OnInit {
         this.closeDeletePopup();
 
         this.showMessagePopup(
-          `Failed to delete ${filename}`
+          `Failed to delete ${filename}`,
+          'error'
         );
 
       }
@@ -517,6 +633,8 @@ export class MyFiles implements OnInit {
   }
 
   openSharePopup(file: File) {
+
+    this.setMinExpiryDate();
 
     this.selectedShareOwnerEmail = '';
 
@@ -629,7 +747,8 @@ export class MyFiles implements OnInit {
       if (!emailPattern.test(email)) {
 
           this.showMessagePopup(
-              'Please enter a valid email address'
+              'Please enter a valid email address',
+              'error'
           );
 
           this.newPermissionEmail = '';
@@ -717,6 +836,19 @@ export class MyFiles implements OnInit {
 
   saveShare() {
 
+    if (
+      this.shareExpiryDate !== '' &&
+      this.shareExpiryDate < this.minExpiryDate
+    ) {
+
+      this.showMessagePopup(
+        'Expiry date must be tomorrow or later',
+        'error'
+      );
+
+      return;
+    }
+
     if (this.selectedShareId) {
 
       this.updateExistingShare();
@@ -746,7 +878,7 @@ export class MyFiles implements OnInit {
     if (this.shareExpiryDate !== '') {
 
       request.expires_at =
-        new Date(this.shareExpiryDate).toISOString();
+        this.buildExpiry(this.shareExpiryDate);
     }
 
     const shareId = this.selectedShareId;
@@ -774,7 +906,8 @@ export class MyFiles implements OnInit {
 
         this.showMessagePopup(
           error.error?.detail ||
-          `Failed to update share settings for ${filename}`
+          `Failed to update share settings for ${filename}`,
+          'error'
         );
 
       }
@@ -800,9 +933,8 @@ export class MyFiles implements OnInit {
 
     if (this.shareExpiryDate !== '') {
 
-      request.expires_at = new Date(
-        this.shareExpiryDate
-      ).toISOString();
+      request.expires_at =
+        this.buildExpiry(this.shareExpiryDate);
     }
 
     const fileId = this.selectedFile.file_id;
@@ -835,13 +967,15 @@ export class MyFiles implements OnInit {
         if (error.status === 409) {
 
           this.showMessagePopup(
-            `Share link already exists for ${filename}`
+            `Share link already exists for ${filename}`,
+            'error'
           );
 
         } else {
 
           this.showMessagePopup(
-            `Failed to create share link for ${filename}`
+            `Failed to create share link for ${filename}`,
+            'error'
           );
 
         }
@@ -851,9 +985,14 @@ export class MyFiles implements OnInit {
     });
   }
 
-  showMessagePopup(text: string) {
+  showMessagePopup(
+    text: string,
+    type: 'success' | 'error' = 'success'
+  ) {
 
     this.message = text;
+
+    this.messageType = type;
 
     this.showMessage = true;
 

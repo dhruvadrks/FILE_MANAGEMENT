@@ -1,114 +1,124 @@
 <div class="profile-page">
 
-<div class="profile-container">
-
     <div class="profile-header">
         <h1>Profile</h1>
         <p>Manage your account information</p>
     </div>
 
-    <div class="profile-details">
+    <div class="profile-container">
 
-        <div class="profile-field">
-            <label>First Name</label>
+        <div class="profile-details">
 
-            <div class="profile-input-row">
-                <input
-                    type="text"
-                    [(ngModel)]="firstName"
-                    [disabled]="!isEditing"
-                    placeholder="First Name"
-                    (blur)="formatName('firstName')"
-                >
+            <div class="profile-field">
+                <label>First Name</label>
 
-                <button
-                    type="button"
-                    class="edit-button"
-                    (click)="enableEditing()"
-                    title="Edit first name"
-                >
-                    ✎
-                </button>
+                <div class="profile-input-row">
+                    <input
+                        type="text"
+                        [(ngModel)]="firstName"
+                        [disabled]="!isEditing"
+                        placeholder="First Name"
+                        (blur)="formatName('firstName')"
+                    >
+
+                    <button
+                        type="button"
+                        class="edit-button"
+                        (click)="enableEditing()"
+                        title="Edit first name"
+                    >
+                        ✎
+                    </button>
+                </div>
             </div>
+
+            <div class="profile-field">
+                <label>Last Name</label>
+
+                <div class="profile-input-row">
+                    <input
+                        type="text"
+                        [(ngModel)]="lastName"
+                        [disabled]="!isEditing"
+                        placeholder="Last Name"
+                        (blur)="formatName('lastName')"
+                    >
+
+                    <button
+                        type="button"
+                        class="edit-button"
+                        (click)="enableEditing()"
+                        title="Edit last name"
+                    >
+                        ✎
+                    </button>
+                </div>
+            </div>
+
+            <div class="profile-field">
+                <label>Email</label>
+
+                <div class="profile-input-row">
+                    <input
+                        type="email"
+                        [(ngModel)]="email"
+                        [disabled]="!isEditing"
+                        placeholder="Email"
+                    >
+
+                    <button
+                        type="button"
+                        class="edit-button"
+                        (click)="enableEditing()"
+                        title="Edit email"
+                    >
+                        ✎
+                    </button>
+                </div>
+            </div>
+
         </div>
 
-        <div class="profile-field">
-            <label>Last Name</label>
+        <div class="profile-actions">
 
-            <div class="profile-input-row">
-                <input
-                    type="text"
-                    [(ngModel)]="lastName"
-                    [disabled]="!isEditing"
-                    placeholder="Last Name"
-                    (blur)="formatName('lastName')"
-                >
-
+            @if (isEditing) {
                 <button
                     type="button"
-                    class="edit-button"
-                    (click)="enableEditing()"
-                    title="Edit last name"
+                    class="cancel-button"
+                    [disabled]="saving"
+                    (click)="cancelEditing()"
                 >
-                    ✎
+                    Cancel
                 </button>
-            </div>
-        </div>
+            }
 
-        <div class="profile-field">
-            <label>Email</label>
+            <button
+                type="button"
+                class="update-profile-button"
+                [disabled]="!isEditing || saving"
+                (click)="updateProfile()"
+            >
+                {{ saving ? 'Saving...' : 'Update Profile' }}
+            </button>
 
-            <div class="profile-input-row">
-                <input
-                    type="email"
-                    [(ngModel)]="email"
-                    [disabled]="!isEditing"
-                    placeholder="Email"
-                >
-
-                <button
-                    type="button"
-                    class="edit-button"
-                    (click)="enableEditing()"
-                    title="Edit email"
-                >
-                    ✎
-                </button>
-            </div>
         </div>
 
     </div>
 
-    <div class="profile-actions">
-
-        <button
-            type="button"
-            class="update-profile-button"
-            [disabled]="!isEditing"
-            (click)="updateProfile()"
-        >
-            Update Profile
-        </button>
-
-    </div>
-
-</div>
 </div>
 
 @if (showMessage) {
 
-  
-<div class="message-overlay">
+    <div class="message-overlay">
 
-    <div class="message-popup">
+        <div class="message-popup" [class.error]="messageType === 'error'">
 
-        <p>
-            {{message}}
-        </p>
+            <p>
+                {{message}}
+            </p>
+
+        </div>
 
     </div>
-
-</div>
-  
 
 }

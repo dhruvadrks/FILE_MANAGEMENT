@@ -1,88 +1,93 @@
 <div class="my-files-page">
 
-  
-<div class="search-section">
+    <div class="page-head">
+        <h2>{{ showOnlyFavorites ? 'Favorites' : 'My Files' }}</h2>
+    </div>
 
-    <div class="search-top">
+    <div class="search-section">
 
-        <input
-            id="search-bar"
-            type="text"
-            [placeholder]="searchType === 'filename'
-                ? 'Search files'
-                : 'Search content'"
-            [(ngModel)]="searchText"
-            (ngModelChange)="searchTextChanged()"
-        >
+        <div class="search-top">
 
-        <button
-            class="search-button"
-            type="button"
-            (click)="searchFiles()"
-        >
-            Search
-        </button>
+            <input
+                id="search-bar"
+                type="text"
+                [placeholder]="searchType === 'filename'
+                    ? 'Search files'
+                    : 'Search content'"
+                [(ngModel)]="searchText"
+                (ngModelChange)="searchTextChanged()"
+                (keyup.enter)="searchFiles()"
+            >
+
+            <button
+                class="search-button"
+                type="button"
+                (click)="searchFiles()"
+            >
+                Search
+            </button>
+
+        </div>
+
+        <div class="search-type">
+
+            <span>Search by:</span>
+
+            <label>
+                <input
+                    type="radio"
+                    name="searchType"
+                    value="filename"
+                    [(ngModel)]="searchType"
+                    (ngModelChange)="onSearchTypeChange($event)"
+                >
+                Filename
+            </label>
+
+            <label>
+                <input
+                    type="radio"
+                    name="searchType"
+                    value="content"
+                    [(ngModel)]="searchType"
+                    (ngModelChange)="onSearchTypeChange($event)"
+                >
+                Content
+            </label>
+
+        </div>
 
     </div>
 
-    <div class="search-type">
 
-        <span>Search by:</span>
+    <div class="file-table-container" (scroll)="closeActionMenu()">
 
-        <label>
-            <input
-                type="radio"
-                name="searchType"
-                value="filename"
-                [(ngModel)]="searchType"
-            >
-            Filename
-        </label>
+        <table class="file-table">
 
-        <label>
-            <input
-                type="radio"
-                name="searchType"
-                value="content"
-                [(ngModel)]="searchType"
-            >
-            Content
-        </label>
+            <thead>
 
-    </div>
+                <tr>
 
-</div>
+                    <th>Filename</th>
 
+                    <th>Filesize</th>
 
-<div class="file-table-container">
+                    <th>Uploaded Date</th>
 
-    <table class="file-table">
+                    <th>Favorite</th>
 
-        <thead>
+                    <th>Indexing Status</th>
 
-            <tr>
+                    <th>Actions</th>
 
-                <th>Filename</th>
+                </tr>
 
-                <th>Filesize</th>
+            </thead>
 
-                <th>Uploaded Date</th>
+            <tbody>
 
-                <th>Favorite</th>
-
-                <th>Indexing Status</th>
-
-                <th>Actions</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            @for (file of files; track file.file_id) {
-
-                @if (!showOnlyFavorites || file.is_favorite) {
+                @for (file of visibleFiles; track file.file_id) {
+                    @let fileType = getFileTypeInfo(file.file_type);
 
                     <tr>
 
@@ -90,11 +95,17 @@
                             class="file-name"
                             (click)="ViewFile(file)"
                         >
+                        <div class="file-name-cell">
+                            <span class="file-type-badge"
+                            [ngClass]="fileType.class">
+                            {{fileType.label}}
+                        </span>
+                        
 
                             <span>
                                 {{file.file_name}}
                             </span>
-
+                            </div>
                         </td>
 
                         <td>
@@ -102,7 +113,7 @@
                         </td>
 
                         <td>
-                            {{file.updated_at | date:'dd-yyyy'}}
+                            {{file.updated_at | date:'dd-MM-yyyy'}}
                         </td>
 
                         <td>
@@ -110,6 +121,9 @@
                             <button
                                 class="favorite-button"
                                 [class.favorite-active]="file.is_favorite"
+                                [attr.aria-label]="file.is_favorite
+                                    ? 'Remove from favorites'
+                                    : 'Add to favorites'"
                                 (click)="toggleFavorite(file)"
                             >
                                 ★
@@ -121,11 +135,15 @@
 
                             @if (file.is_indexed) {
 
-                                Indexed
+                                <span class="status-pill indexed">
+                                    Indexed
+                                </span>
 
                             } @else {
 
-                                Not Indexed
+                                <span class="status-pill not-indexed">
+                                    Not Indexed
+                                </span>
 
                             }
 
@@ -133,59 +151,95 @@
 
                         <td class="actions">
 
-                            <select
-                                (change)="handleAction($event, file)"
+                            <button
+                                type="button"
+                                class="action-button"
+                                aria-haspopup="menu"
+                                [attr.aria-expanded]="openMenuId === file.file_id"
+                                [attr.aria-label]="'Actions for ' + file.file_name"
+                                (click)="toggleActionMenu($event, file)"
                             >
+                                ⋮
+                            </button>
 
-                                <option value="">
-                                    ⋮
-                                </option>
+                            @if (openMenuId === file.file_id) {
 
-                                <option value="download">
-                                    Download
-                                </option>
+                                <div
+                                    class="action-menu"
+                                    role="menu"
+                                    [style.top.px]="menuTop"
+                                    [style.left.px]="menuLeft"
+                                    (click)="$event.stopPropagation()"
+                                >
 
-                                <option value="rename">
-                                    Rename
-                                </option>
+                                    <button
+                                        type="button"
+                                        role="menuitem"
+                                        (click)="runAction('download', file)"
+                                    >
+                                        Download
+                                    </button>
 
-                                <option value="share">
-                                    Share
-                                </option>
+                                    <button
+                                        type="button"
+                                        role="menuitem"
+                                        (click)="runAction('rename', file)"
+                                    >
+                                        Rename
+                                    </button>
 
-                                <option value="delete">
-                                    Delete
-                                </option>
+                                    <button
+                                        type="button"
+                                        role="menuitem"
+                                        (click)="runAction('share', file)"
+                                    >
+                                        Share
+                                    </button>
 
-                            </select>
+                                    <button
+                                        type="button"
+                                        role="menuitem"
+                                        class="danger"
+                                        (click)="runAction('delete', file)"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </div>
+
+                            }
 
                         </td>
 
                     </tr>
 
-                }
+                } 
 
-            }
 
-        </tbody>
+            </tbody>
 
-    </table>
+        </table>
 
-</div>
-  
+    </div>
 
 </div>
 
-@if(showDeletePopup){
+@if (showDeletePopup) {
+
     <div class="delete-overlay">
+
         <div class="delete-popup">
+
             <h2>Delete File</h2>
+
             <p>
                 Are you sure you want to delete
-                <strong>{{selectedDeleteFile?.file_name}}</strong> 
+                <strong>{{selectedDeleteFile?.file_name}}</strong>
             </p>
+
             <div class="delete-buttons">
-                <button 
+
+                <button
                     type="button"
                     class="confirm-delete-button"
                     (click)="deleteFile()"
@@ -202,8 +256,11 @@
                 </button>
 
             </div>
+
         </div>
+
     </div>
+
 }
 
 @if (showSharePopup) {
@@ -219,6 +276,40 @@
             <p>
                 {{ selectedFile?.file_name }}
             </p>
+
+
+            <!-- SHARE LINK (only when a link already exists) -->
+
+            @if (selectedShareId) {
+
+                <div class="share-link-section">
+
+                    <label>
+                        Share Link
+                    </label>
+
+                    <div class="share-link-row">
+
+                        <input
+                            type="text"
+                            readonly
+                            [value]="'http://localhost:4200/share/' + selectedShareToken"
+                            aria-label="Share link"
+                        >
+
+                        <button
+                            type="button"
+                            class="copy-link-button"
+                            (click)="copyShareLink()"
+                        >
+                            Copy
+                        </button>
+
+                    </div>
+
+                </div>
+
+            }
 
 
             <!-- PERMISSIONS -->
@@ -252,6 +343,7 @@
                     <button
                         type="button"
                         class="remove-permission-button"
+                        [attr.aria-label]="'Remove ' + email"
                         (click)="removeSharePermission(email)"
                     >
                         ✕
@@ -280,8 +372,8 @@
                     Add
                 </button>
 
-                @if(ownerEmailError){
-                    <p>File owner aready has permission</p>
+                @if (ownerEmailError) {
+                    <p class="err">File owner already has permission</p>
                 }
 
             </div>
@@ -324,6 +416,9 @@
 
                     }
 
+                    The link expires on the date you choose, at
+                    the time you save it.
+
                 </p>
 
 
@@ -334,6 +429,7 @@
                         class="expiry-unit"
                         [(ngModel)]="shareExpiryDate"
                         [min]="minExpiryDate"
+                        aria-label="Expiry date"
                     >
 
                 </div>
@@ -375,72 +471,71 @@
 
 @if (showRenamePopup) {
 
-  
-<div class="rename-overlay">
+    <div class="rename-overlay">
 
-    <div class="rename-popup">
+        <div class="rename-popup">
 
-        <h2>
-            Rename File
-        </h2>
+            <h2>
+                Rename File
+            </h2>
 
-        <p>
+            <p>
 
-            Enter a new name for
+                Enter a new name for
 
-            <strong>
-                {{selectedRenameFile?.file_name}}
-            </strong>
+                <strong>
+                    {{selectedRenameFile?.file_name}}
+                </strong>
 
-        </p>
+            </p>
 
-        <input
-            type="text"
-            [(ngModel)]="newFileName"
-            placeholder="Enter new filename"
-        >
-
-        <div class="rename-buttons">
-
-            <button
-                type="button"
-                class="confirm-rename-button"
-                (click)="renameFile()"
+            <input
+                type="text"
+                [(ngModel)]="newFileName"
+                placeholder="Enter new filename"
             >
-                Rename
-            </button>
 
-            <button
-                type="button"
-                class="cancel-rename-button"
-                (click)="closeRenamePopup()"
-            >
-                Cancel
-            </button>
+            <div class="rename-buttons">
+
+                <button
+                    type="button"
+                    class="confirm-rename-button"
+                    (click)="renameFile()"
+                >
+                    Rename
+                </button>
+
+                <button
+                    type="button"
+                    class="cancel-rename-button"
+                    (click)="closeRenamePopup()"
+                >
+                    Cancel
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
-  
-
 }
 
 @if (showMessage) {
 
-  
-<div class="message-overlay">
+    <div class="message-overlay">
 
-    <div class="message-popup">
+        <div
+            class="message-popup"
+            [class.error]="messageType === 'error'"
+        >
 
-        <p>
-            {{message}}
-        </p>
+            <p>
+                {{message}}
+            </p>
+
+        </div>
 
     </div>
-
-</div>
-  
 
 }

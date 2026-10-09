@@ -14,10 +14,18 @@ export class Profile implements OnInit {
     lastName = ''
     email = ''
 
+    private originalFirstName = ''
+    private originalLastName = ''
+    private originalEmail = ''
+
     isEditing = false
+    saving = false
 
     showMessage = false
     message = ''
+    messageType: 'success' | 'error' = 'success'
+
+    private emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     constructor(
         private http: HttpClient,
@@ -67,13 +75,20 @@ export class Profile implements OnInit {
                 this.lastName = response.last_name
                 this.email = response.email.toLowerCase()
 
+                this.originalFirstName = this.firstName
+                this.originalLastName = this.lastName
+                this.originalEmail = this.email
+
                 this.cdr.detectChanges()
 
             },
 
             error: error => {
 
-                console.log(error)
+                this.showMessagePopup(
+                    'Failed to load profile. Please try again.',
+                    'error'
+                )
 
             }
 
@@ -85,7 +100,35 @@ export class Profile implements OnInit {
         this.isEditing = true
     }
 
+    cancelEditing() {
+
+        this.firstName = this.originalFirstName
+        this.lastName = this.originalLastName
+        this.email = this.originalEmail
+
+        this.isEditing = false
+
+        this.cdr.detectChanges()
+    }
+
     updateProfile() {
+
+        if (this.saving) {
+            return
+        }
+
+        if (!this.emailPattern.test(this.email)) {
+
+            this.showMessagePopup(
+                'Please enter a valid email address',
+                'error'
+            )
+
+            return
+        }
+
+        this.saving = true
+        this.cdr.detectChanges()
 
         const request = {
             first_name: this.firstName,
@@ -100,9 +143,12 @@ export class Profile implements OnInit {
 
             next: response => {
 
-                console.log(response)
-
                 this.isEditing = false
+                this.saving = false
+
+                this.originalFirstName = this.firstName
+                this.originalLastName = this.lastName
+                this.originalEmail = this.email
 
                 localStorage.setItem(
                     'first_name',
@@ -115,7 +161,8 @@ export class Profile implements OnInit {
                 )
 
                 this.showMessagePopup(
-                    'Profile updated successfully'
+                    'Profile updated successfully',
+                    'success'
                 )
 
                 this.cdr.detectChanges()
@@ -124,12 +171,20 @@ export class Profile implements OnInit {
 
             error: error => {
 
-                console.log(error)
+                this.saving = false
 
                 if (error.status === 409) {
 
                     this.showMessagePopup(
-                        'Email already registered'
+                        'Email already registered',
+                        'error'
+                    )
+
+                } else {
+
+                    this.showMessagePopup(
+                        'Failed to update profile. Please try again.',
+                        'error'
                     )
 
                 }
@@ -141,9 +196,10 @@ export class Profile implements OnInit {
         })
     }
 
-    showMessagePopup(text: string) {
+    showMessagePopup(text: string, type: 'success' | 'error' = 'success') {
 
         this.message = text
+        this.messageType = type
 
         this.showMessage = true
 

@@ -1,43 +1,50 @@
 <div class="login-page">
-    <img
-        class="logo"
-        src="/image.jpg"
-        alt="logo"
-    >
+    <img class="logo" src="/image.jpg" alt="logo">
 
-<div class="login-container">
-    <h1>Login</h1>
+    <div class="login-container">
+        <h1>Login</h1>
 
+        <form (ngSubmit)="login()">
+            <div class="field">
+                <label for="email">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter email"
+                    autocomplete="username"
+                    [(ngModel)]="email"
+                />
+            </div>
 
-<form (ngSubmit)="login()">
-    <div>
-        <label for = "email"><b>Email</b></label>
+            <div class="field">
+                <label for="password">Password</label>
+                <input
+                    #passwordInput
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    [(ngModel)]="password"
+                />
+                
+            </div>
 
-        <input
-            type="email"
-            id="email"
-            name="email"
-            [(ngModel)]="email"
-            />
+            <button type="submit" class="submit" [disabled]="loading">
+                {{ loading ? 'Logging in...' : 'Login' }}
+            </button>
+        </form>
+
+        @if (message) {
+            <p class="message" [class.error]="messageType === 'error'" [class.success]="messageType === 'success'">
+                {{ message }}
+            </p>
+        }
+
+        <div class="links">
+            <a routerLink="/forgot-password">Forgot Password</a>
+            <p>Don't have an account? <a routerLink="/register">Register</a></p>
+        </div>
     </div>
-
-    <div>
-        <label for="password"><b>Password</b></label>
-        <input 
-            type="password"
-            id="password"
-            name="password"
-            [(ngModel)]="password"
-        />
-    </div>
-    <button type="submit"><b>Login</b></button>
-</form>
-<p ><b>{{ message }}</b></p>
-
-<a class="forgot-password" href="/forgot-password">Forgot Password</a>
-
-<p>
-    Don't have an account? <a href="/register">Register</a>
-</p>
-</div>
 </div>

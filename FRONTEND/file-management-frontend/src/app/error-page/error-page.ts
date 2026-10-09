@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-error-page',
@@ -12,26 +12,33 @@ export class ErrorPage {
   title = ''
   message = ''
   returnUrl = ''
+  code = ''
+  icon = ''
+  primaryLabel = ''
+  primaryRoute = '/login'
 
   constructor(
     private route: ActivatedRoute,
-    private router:Router
-  ){}
+    private router: Router
+  ) {}
 
-  ngOnInit(){
+  ngOnInit() {
     this.route.queryParams.subscribe(
       params => {
-        this.title = params['title'] || 'something went wrong'
-        this.message = params['message'] || 'An unexpected error occured'
+        this.title = params['title'] || 'Page Not Found'
+        this.message = params['message'] || 'The page you are looking for does not exist'
         this.returnUrl = params['returnUrl'] || ''
+        this.code = params['code'] || ''
+        this.icon = params['icon'] || ''
+        this.primaryLabel = params['primaryLabel'] || ''
+        this.primaryRoute = params['primaryRoute'] || '/login'
       }
     )
   }
-  goToLogin(){
-    this.router.navigate(['/login'],{
-      queryParams: {
-        returnUrl: this.returnUrl
-      }
+
+  goPrimary() {
+    this.router.navigate([this.primaryRoute], {
+      queryParams: this.returnUrl ? { returnUrl: this.returnUrl } : {}
     })
   }
 }

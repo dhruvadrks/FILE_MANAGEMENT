@@ -1,19 +1,23 @@
 import { inject } from '@angular/core';
 import { HttpInterceptorFn, HttpClient } from '@angular/common/http';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
+import { Router } from '@angular/router';
 import { AuthService } from './auth';
 
 let isRefreshing = false;
 
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
+const skipRefresh = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/forgot-password', '/auth/reset-password'];
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
     const authService = inject(AuthService);
     const http = inject(HttpClient);
+    const router = inject(Router)
 
     // Skip refresh token request to avoid infinite loop
-    if (req.url.endsWith('/auth/refresh')) {
+    if (skipRefresh.some(url => req.url.includes(url))) {
         return next(req);
     }
 
@@ -144,7 +148,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
                     refreshTokenSubject.next(null);
 
-
+                    router.navigate(['/login'],{
+                        queryParams: {
+                            returnUrl:router.url
+                        }
+                    })
                     return throwError(
                         () => refreshError
                     );

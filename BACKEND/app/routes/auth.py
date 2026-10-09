@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status,Response,Cookie
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import RefreshToken, User
-from app.security import create_access_token, create_refresh_tokens, get_current_user
+from app.service.security import create_access_token, create_refresh_tokens, get_current_user
 import hashlib
-from datetime import timedelta
+from datetime import timedelta,timezone
 from app.schema.auth_schema import ForgotPasswordRequest, LoginResponse, PasswordResetResponse, RegisterRequest, RegisterResponse, LoginRequest, ResetPasswordRequest,ProfileResponse,ProfileUpdate
 from app.handlers.auth_handler import register_user,login_user,forgot_password_user,reset_password_user,validate_reset_token,get_profile_handler,update_profile_handler
-from app.utils import utc_now
+from app.service.utils import utc_now
 
 router = APIRouter(
     prefix="/auth",
@@ -80,16 +80,20 @@ def refresh(
 
     try:
 
+        # Check if refresh token exists
         if not refresh_token:
+
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Refresh token missing"
             )
 
+        # Hash the refresh token from the cookie
         token_hash = hashlib.sha256(
             refresh_token.encode()
         ).hexdigest()
 
+        # Find refresh token in database
         existing_token = (
             db.query(RefreshToken)
             .filter(
@@ -99,18 +103,32 @@ def refresh(
             .first()
         )
 
+        # Token does not exist
         if not existing_token:
+
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid refresh token"
             )
 
-        if existing_token.expires_at <= utc_now():
+        # Convert database datetime to timezone-aware UTC
+        expires_at = existing_token.expires_at
+
+        if expires_at.tzinfo is None:
+
+            expires_at = expires_at.replace(
+                tzinfo=timezone.utc
+            )
+
+        # Check token expiration
+        if expires_at <= utc_now():
+
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Refresh token expired"
             )
 
+        # Find the user associated with the refresh token
         user = (
             db.query(User)
             .filter(
@@ -120,6 +138,7 @@ def refresh(
         )
 
         if not user:
+
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
@@ -140,15 +159,16 @@ def refresh(
 
         db.add(new_refresh)
 
-        # Create new access token
+        # Create a new access token
         new_access_token = create_access_token(
             user_id=user.user_id,
             email=user.email
         )
 
-        # Commit delete + insert together
+        # Save the old token deletion and new token together
         db.commit()
 
+        # Send the new refresh token as an HttpOnly cookie
         response.set_cookie(
             key="refresh_token",
             value=new_refresh_token,
@@ -164,10 +184,13 @@ def refresh(
         }
 
     except HTTPException:
+
         db.rollback()
+
         raise
 
     except Exception:
+
         db.rollback()
 
         raise HTTPException(

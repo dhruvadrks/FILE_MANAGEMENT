@@ -59,6 +59,8 @@ export class Share implements OnInit {
 
         let title = 'Invalid Share Link'
         let message = 'The share link is invalid.'
+        let code = ''
+        let icon = ''
 
         if (error.status === 400) {
 
@@ -68,6 +70,9 @@ export class Share implements OnInit {
         }
 
         if (error.status === 410) {
+
+          code = '410'
+          icon = 'expired'
 
           if (error.error?.detail === 'Sharelink has expired') {
 
@@ -88,7 +93,9 @@ export class Share implements OnInit {
         this.router.navigate(['/error'], {
           queryParams: {
             title: title,
-            message: message
+            message: message,
+            code: code,
+            icon: icon
           }
         })
 
@@ -106,7 +113,8 @@ export class Share implements OnInit {
         queryParams: {
           title:'Login required',
           message: 'Please log in to access this shared file',
-          returnUrl: `/share/${this.token}`
+          returnUrl: `/share/${this.token}`,
+          primaryLabel: 'Go to Login'
         }
       });
 
@@ -129,10 +137,14 @@ export class Share implements OnInit {
 
         let title = 'Unable to Open Share Link';
         let message = 'The share link could not be opened.';
+        let code = '';
+        let icon = '';
 
         if (error.status === 403) {
           title = 'Access Denied';
           message = 'You do not have permission to access this file.';
+          code = '403';
+          icon = 'denied';
         }
 
         if (error.status === 404) {
@@ -141,6 +153,9 @@ export class Share implements OnInit {
         }
 
         if (error.status === 410) {
+
+          code = '410';
+          icon = 'expired';
 
           if (error.error?.detail === 'Share link expired') {
             title = 'Share Link Expired';
@@ -156,7 +171,9 @@ export class Share implements OnInit {
         this.router.navigate(['/error'], {
           queryParams: {
             title: title,
-            message: message
+            message: message,
+            code: code,
+            icon: icon
           }
         });
 

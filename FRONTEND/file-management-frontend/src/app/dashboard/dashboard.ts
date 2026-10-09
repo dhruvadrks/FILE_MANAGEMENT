@@ -1,6 +1,6 @@
 import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MyFiles } from './my-files/my-files';
 import { AuthService } from '../auth/auth';
 
@@ -28,11 +28,10 @@ export class Dashboard {
 
   showMessage = false;
   message = '';
+  messageType: 'success' | 'error' = 'success';
 
   firstName =
     localStorage.getItem('first_name') || '';
-
-  activepage = 'files';
 
   UploadFile(event: Event) {
 
@@ -67,10 +66,14 @@ export class Dashboard {
           `${file.name} uploaded successfully`
         );
 
-        const myfiles =
-          this.routerOutlet.component as MyFiles;
+        const outletComponent =
+          this.routerOutlet.component;
 
-        myfiles.getFiles();
+        if (outletComponent instanceof MyFiles) {
+
+          outletComponent.getFiles();
+
+        }
 
       },
 
@@ -79,40 +82,13 @@ export class Dashboard {
         input.value = '';
 
         this.showMessagePopup(
-          'File Upload Failed. Try again'
+          'File Upload Failed. Try again',
+          'error'
         );
 
       }
 
     });
-  }
-
-  showAllFiles() {
-
-    this.router.navigate([
-      '/dashboard/files'
-    ]);
-
-    const myfiles =
-      this.routerOutlet.component as MyFiles;
-
-    myfiles.showOnlyFavorites = false;
-
-    this.activepage = 'files';
-  }
-
-  showFavorites() {
-
-    this.router.navigate([
-      '/dashboard/files/favorites'
-    ]);
-
-    const myfiles =
-      this.routerOutlet.component as MyFiles;
-
-    myfiles.showOnlyFavorites = true;
-
-    this.activepage = 'favorites';
   }
 
   logout() {
@@ -146,9 +122,14 @@ export class Dashboard {
     });
   }
 
-  showMessagePopup(text: string) {
+  showMessagePopup(
+    text: string,
+    type: 'success' | 'error' = 'success'
+  ) {
 
     this.message = text;
+
+    this.messageType = type;
 
     this.showMessage = true;
 

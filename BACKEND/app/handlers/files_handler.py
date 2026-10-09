@@ -7,7 +7,7 @@ from app.database.models import File, Upload,Sharelink,Vector
 from app.service.s3_operations import *
 from app.service.indexing import background_index_file
 from app.service.faiss_index import remove_embeddings
-from s3_client import s3,BUCKET_NAME
+from app.service.s3_client import s3,BUCKET_NAME
 
 
 m = Magika()

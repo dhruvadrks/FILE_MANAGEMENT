@@ -10,7 +10,6 @@ import { Share } from './share/share';
 import { ShareLinks } from './dashboard/share-links/share-links';
 import { Profile } from './dashboard/profile/profile';
 import { authGuard } from './auth/auth-guard';
-import { share } from 'rxjs';
 
 export const routes: Routes = [
     {
@@ -49,7 +48,7 @@ export const routes: Routes = [
                 component: MyFiles
             },
             {
-                path: 'files/favorites',
+                path: 'favorites',
                 component: MyFiles
             },
             {
@@ -73,7 +72,13 @@ export const routes: Routes = [
     {
         path: 'profile',
         component: Profile,
-        canActivate: [authGuard]
+        canActivate: [authGuard],
+        children: [
+            {
+                path: '',
+                component: Profile
+            }
+        ]
     },
     {
         path: '**',

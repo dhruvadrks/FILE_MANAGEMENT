@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.database.models import User
-from app.security import get_current_user
+from app.service.security import get_current_user
 from app.schema.file_schema import RenameRequest
 from app.handlers.files_handler import (
     upload_file_handler,

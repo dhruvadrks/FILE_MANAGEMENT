@@ -1,56 +1,89 @@
 .error-page {
   min-height: 100vh;
+  box-sizing: border-box;
+  padding: 28px 16px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgb(70, 64, 64);
-  font-family: Calibri, sans-serif;
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
 }
 
 .error-card {
-  width: 420px;
-  padding: 40px;
-  background-color: rgb(212, 193, 193);
-  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  padding: 40px 32px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   text-align: center;
-  box-shadow: 0 10px 35px rgba(110, 6, 6, 0.12);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .error-icon {
   width: 60px;
   height: 60px;
-  margin: 0 auto 20px;
+  margin: 0 auto 16px;
   border-radius: 50%;
-  background-color: #bebbbb;
-  color: #dc2626;
-  font-size: 38px;
-  font-weight: bold;
+  background-color: var(--bad-bg);
+  color: var(--bad);
+  font-size: 32px;
+  font-weight: 700;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.error-icon svg {
+  width: 28px;
+  height: 28px;
+  stroke: var(--bad);
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.error-code {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--bad);
+}
+
 .error-card h1 {
-  margin-bottom: 12px;
-  color: #172554;
+  margin-bottom: 10px;
+  color: var(--fg);
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .error-card p {
-  margin-bottom: 25px;
-  color: #64748b;
-  font-size: 16px;
+  margin-bottom: 26px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .error-card button {
-  padding: 10px 22px;
+  padding: 11px 22px;
   border: none;
-  border-radius: 8px;
-  background-color: #2563eb;
-  color: white;
-  font-size: 15px;
+  border-radius: 9px;
+  background-color: var(--accent);
+  color: var(--accent-fg);
+  font-size: 14.5px;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .error-card button:hover {
-  background-color: #1d4ed8;
+  filter: brightness(1.1);
+}
+
+.error-card button:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
 }

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute,Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 interface PasswordResetResponse {
   message: string;
@@ -9,7 +9,7 @@ interface PasswordResetResponse {
 
 @Component({
   selector: 'app-reset-password',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css',
 })
@@ -20,7 +20,12 @@ export class ResetPassword {
   confirm_password = '';
 
   token = '';
-  message=''
+  message = ''
+  messageType: 'success' | 'error' = 'error'
+  loading = false
+
+  showPassword = false
+  showConfirmPassword = false
 
   showSuccessPopup = false
 
@@ -51,7 +56,7 @@ export class ResetPassword {
     });
   }
 
-  validateToken(){
+  validateToken() {
     this.http.get<PasswordResetResponse>(
       'http://127.0.0.1:8000/auth/reset-password/validate',
       {
@@ -60,10 +65,10 @@ export class ResetPassword {
         }
       }
     ).subscribe({
-      next:response =>{
+      next: response => {
       },
-      error:error => {
-        this.router.navigate(['/error'],{
+      error: error => {
+        this.router.navigate(['/error'], {
           queryParams: {
             title: 'Invalid Reset Link',
             message: error.error?.detail || 'The Reset link is invalid or expired'
@@ -73,42 +78,58 @@ export class ResetPassword {
     })
   }
 
+  private showError(text: string) {
+    this.message = text
+    this.messageType = 'error'
+    this.loading = false
+    this.cdr.detectChanges()
+  }
+
   reset_password() {
 
-    if(this.new_password.length < 8){
-      this.message = "Password must be at least 8 characters long"
-      
+    if (this.loading) {
       return
     }
-    if(this.confirm_password.length < 8){
-      this.message = 'Confirm password must be at least 8 characters long'
+
+    if (this.new_password.length < 8) {
+      this.showError("Password must be at least 8 characters long")
       return
     }
-    if(this.new_password !== this.confirm_password){
-      this.message = "Passwords do not match"
+    if (this.confirm_password.length < 8) {
+      this.showError('Confirm password must be at least 8 characters long')
       return
     }
+    if (this.new_password !== this.confirm_password) {
+      this.showError("Passwords do not match")
+      return
+    }
+
+    this.message = ''
+    this.loading = true
+    this.cdr.detectChanges()
 
     this.http.post<PasswordResetResponse>(
       'http://127.0.0.1:8000/auth/reset-password',
       {
-        token:this.token,
-        new_password:this.new_password,
-        confirm_password:this.confirm_password
+        token: this.token,
+        new_password: this.new_password,
+        confirm_password: this.confirm_password
       }
-    ).subscribe({next:response=>{
-      this.message = response.message
-      this.showSuccessPopup = true
-      this.cdr.detectChanges()
+    ).subscribe({
+      next: response => {
+        this.message = response.message
+        this.messageType = 'success'
+        this.loading = false
+        this.showSuccessPopup = true
+        this.cdr.detectChanges()
 
-      setTimeout(() => {
-        this.router.navigate(['/login'])
-      },2500)
-    },
-    error:error =>{
-      this.message = error.error.detail
-      this.cdr.detectChanges()
-    }
-  })
+        setTimeout(() => {
+          this.router.navigate(['/login'])
+        }, 2500)
+      },
+      error: error => {
+        this.showError(error.error?.detail || 'Password reset failed. Please try again.')
+      }
+    })
   }
 }

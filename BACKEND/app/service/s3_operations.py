@@ -1,4 +1,4 @@
-from s3_client import s3,BUCKET_NAME
+from app.service.s3_client import s3,BUCKET_NAME
 from botocore.exceptions import ClientError
 
 def upload_to_s3(user_id,file,file_id):

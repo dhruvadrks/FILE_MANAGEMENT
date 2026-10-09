@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 import secrets
 from fastapi import HTTPException, status, Response
 from sqlalchemy.orm import Session
-from app.utils import utc_now
+from app.service.utils import utc_now
 from app.database.models import Sharelink, Permission, File, User
 from app.schema.sharing_schema import ShareRequest, ShareChange
 from app.service.s3_operations import get_file_from_s3
@@ -358,6 +358,7 @@ def get_all_shares_handler(
                 permission.email
                 for permission in permissions
             ],
+            "file_type":file.file_type,
             "created_at": share_link.created_at,
             "share_token": share_link.token,
             "expires_at": share_link.expires_at,

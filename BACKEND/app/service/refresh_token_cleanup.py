@@ -1,6 +1,6 @@
 from app.database.database import SessionLocal
 from app.database.models import RefreshToken
-from app.utils import utc_now
+from app.service.utils import utc_now
 
 
 def delete_expired_refresh_tokens():

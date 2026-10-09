@@ -1,7 +1,7 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router,ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../auth';
 
 interface LoginResponse {
@@ -14,15 +14,20 @@ interface LoginResponse {
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login {
 
+  @ViewChild('passwordInput') passwordInput!: ElementRef<HTMLInputElement>;
+
   email = '';
   password = '';
   message = '';
+  messageType: 'success' | 'error' = 'error';
+  loading = false;
+  showPassword = false
 
   constructor(
     private http: HttpClient,
@@ -32,19 +37,32 @@ export class Login {
     private authService: AuthService
   ) {}
 
+  private showError(text: string) {
+    this.message = text;
+    this.messageType = 'error';
+    this.loading = false;
+    this.cdr.detectChanges();
+  }
+
   login() {
 
-    if(this.email === ''){
-      this.message = "Please enter a valid email address"
-      this.cdr.detectChanges()
+    if (this.loading) {
       return
     }
 
-    if(this.password === ''){
-      this.message = "Password is required"
-      this.cdr.detectChanges()
+    if (this.email === '') {
+      this.showError("Please enter a valid email address")
       return
     }
+
+    if (this.password === '') {
+      this.showError("Password is required")
+      return
+    }
+
+    this.message = ''
+    this.loading = true
+    this.cdr.detectChanges()
 
     this.http.post<LoginResponse>(
       'http://localhost:8000/auth/login',
@@ -62,39 +80,47 @@ export class Login {
         localStorage.setItem('email', response.email.toLowerCase())
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl')
 
-        if(returnUrl){
+        if (returnUrl) {
           this.router.navigateByUrl(returnUrl)
           return
         }
-        setTimeout(() => {
-          this.router.navigate(['/dashboard/files'])
-        },2000)
-        
+
+        this.message = 'Login successful. Opening your files...'
+        this.messageType = 'success'
         this.email = ''
         this.password = ''
+        this.cdr.detectChanges()
+
+        setTimeout(() => {
+          this.router.navigate(['/dashboard/files'])
+        }, 600)
       },
 
       error: error => {
+        const detail = error?.error?.detail
 
-        if(error.error.detail === "User not found Register before Login"){
-          this.password = ''
-        }
-        
-        if(error.error.detail === "Incorrect Password"){
-          this.password = ''
-        }
-
-        if(error.status === 422){
-          this.message = "Please enter valid Email Address"
-          this.cdr.detectChanges()
+        if (error.status === 0) {
+          this.showError("Could not reach the server. Please try again.")
           return
         }
 
-        this.message = error.error.detail
+        if (error.status === 422) {
+          this.showError("Please enter valid Email Address")
+          return
+        }
 
-        this.cdr.detectChanges();
+        if (detail === "User not found Register before Login") {
+          this.password = ''
+        }
+
+        if (detail === "Incorrect Password") {
+          this.password = ''
+          this.cdr.detectChanges()
+          this.passwordInput?.nativeElement.focus()
+        }
+
+        this.showError(typeof detail === 'string' ? detail : "Login failed. Please try again.")
       }
     });
   }
 }
-

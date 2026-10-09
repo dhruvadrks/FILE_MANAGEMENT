@@ -1,225 +1,210 @@
 :host {
-display: flex;
-width: 100%;
-height: 100%;
+    display: block;
+    width: 100%;
 }
 
 .profile-page {
-width: 100%;
-min-height: 100vh;
-box-sizing: border-box;
-background-color: #0f0f10;
-color: rgb(250, 248, 248);
-
- 
-display: flex;
-justify-content: center;
-align-items: flex-start;
-
-padding-top: 60px;
- 
-
-}
-
-.profile-container {
-width: 600px;
-box-sizing: border-box;
-
-margin-top: 30px; 
-background-color: #1a1d24;
-border: 1px solid #2d3440;
-border-radius: 18px;
-
-padding: 35px;
- 
-
+    margin-top: 70px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .profile-header {
-margin-bottom: 35px;
+    margin-bottom: 28px;
+    margin-left: -325px;
 }
 
 .profile-header h1 {
-margin: 0 0 8px 0;
-font-size: 28px;
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--fg);
 }
 
 .profile-header p {
-margin: 0;
-color: rgb(250, 248, 248);
-font-size: 14px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.profile-container {
+    width: 100%;
+    max-width: 560px;
+    box-sizing: border-box;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 32px;
 }
 
 .profile-details {
-display: flex;
-flex-direction: column;
-gap: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
 }
 
 .profile-field {
-display: flex;
-flex-direction: column;
-gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .profile-field label {
-font-size: 14px;
-font-weight: 600;
-color: rgb(250, 248, 248);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
 }
 
 .profile-input-row {
-display: flex;
-align-items: center;
-width: 100%;
+    display: flex;
+    align-items: center;
+    width: 100%;
 }
 
 .profile-input-row input {
-flex: 1;
-height: 48px;
-box-sizing: border-box;
-
- 
-padding: 0 50px 0 15px;
-
-background-color: #252932;
-border: 1px solid #3a414d;
-border-radius: 10px;
-
-color: rgb(250, 248, 248);
-font-size: 15px;
-
-outline: none;
- 
-
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 50px 0 14px;
+    background-color: var(--field);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--fg);
+    font-size: 15px;
+    outline: none;
 }
 
 .profile-input-row input:disabled {
-color: #d1d5db;
-background-color: #20232a;
-cursor: default;
+    color: var(--muted);
+    background-color: var(--field);
+    cursor: default;
 }
 
 .profile-input-row input:not(:disabled):focus {
-border-color: #4f8cff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .profile-input-row input::placeholder {
-color: #777f8c;
+    color: var(--placeholder);
 }
 
 .edit-button {
-width: 38px;
-height: 38px;
-
- 
-margin-left: -45px;
-
-border: none;
-border-radius: 8px;
-
-background: transparent;
-color: #9ca3af;
-
-font-size: 19px;
-
-cursor: pointer;
-
-display: flex;
-align-items: center;
-justify-content: center;
- 
-
+    width: 36px;
+    height: 36px;
+    margin-left: -44px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 17px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .edit-button:hover {
-background-color: #303641;
-color: white;
+    background-color: var(--soft);
+    color: var(--fg);
 }
 
 .profile-actions {
-margin-top: 35px;
-display: flex;
-justify-content: flex-end;
+    margin-top: 28px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancel-button {
+    height: 42px;
+    padding: 0 20px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background-color: var(--soft);
+    color: var(--fg);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-button:hover:not(:disabled) {
+    background-color: var(--field);
+}
+
+.cancel-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .update-profile-button {
-height: 44px;
-padding: 0 22px;
-
- 
-border: none;
-border-radius: 9px;
-
-background-color: #2563eb;
-color: white;
-
-font-size: 14px;
-font-weight: 600;
-
-cursor: pointer;
- 
-
+    height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 9px;
+    background-color: var(--accent);
+    color: var(--accent-fg);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .update-profile-button:hover:not(:disabled) {
-background-color: #1d4ed8;
+    filter: brightness(1.1);
 }
 
 .update-profile-button:disabled {
-background-color: #343942;
-color: #777f8c;
-cursor: not-allowed;
+    background-color: var(--soft);
+    color: var(--muted);
+    cursor: not-allowed;
 }
 
 .message-overlay {
-position: fixed;
-
- 
-top: 25px;
-left: 0;
-
-width: 100%;
-
-display: flex;
-
-justify-content: center;
-
-z-index: 1100;
- 
-
+    position: fixed;
+    top: 24px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1100;
 }
 
 .message-popup {
-width: 450px;
+    max-width: 460px;
+    background-color: var(--ok-bg);
+    border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent);
+    border-radius: 12px;
+    padding: 14px 20px;
+    animation: messageFade 0.2s ease;
+}
 
- 
-background-color: #1f1f20;
-
-border: 1px solid #3a3a3c;
-
-border-radius: 12px;
-
-padding: 18px;
-
-animation: messageFade 0.2s ease;
- 
-
+.message-popup.error {
+    background-color: var(--bad-bg);
+    border-color: color-mix(in srgb, var(--bad) 35%, transparent);
 }
 
 .message-popup p {
-color: #22c55e;
+    color: var(--ok);
+    text-align: center;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
 
- 
-text-align: center;
+.message-popup.error p {
+    color: var(--bad);
+}
 
-margin: 0;
-
-font-family: Calibri, sans-serif;
-
-font-size: 16px;
-
-font-weight: 600;
- 
-
+@keyframes messageFade {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

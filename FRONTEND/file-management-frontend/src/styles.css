@@ -1,7 +1,60 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles: Cobalt Midnight */
+:root {
+  /* Surfaces */
+  --bg: #05070d;        /* page background */
+  --side: #030408;      /* sidebar */
+  --panel: #0b0f1c;     /* cards, tables, auth card */
+  --field: #070913;     /* inputs */
+  --hover: #0e1323;     /* row and button hover */
+  --soft: #11172a;      /* active nav item, chips */
+  --line: #171f38;      /* borders and dividers */
+
+  /* Text */
+  --fg: #eceef4;
+  --muted: #7f8fc3;
+  --placeholder: #475890;
+
+  /* Accent */
+  --accent: #4a7cff;
+  --accent-deep: #002da4;   /* avatar gradient end */
+  --accent-fg: #10100f;     /* text on accent buttons */
+  --link: #8faeff;
+
+  /* Status */
+  --ok: #58d39a;   --ok-bg: rgba(88, 211, 154, .12);
+  --warn: #f0a35a; --warn-bg: rgba(240, 163, 90, .13);
+  --bad: #ff7a7a;  --bad-bg: rgba(255, 100, 100, .12);
+
+  /* Favorite star */
+  --star: #f0b43c;
+  --star-off: #263051;
+
+  /* File-type badges */
+  --b-pdf: #ff8f8f; --b-pdf-bg: rgba(255, 100, 100, .14);
+  --b-doc: #8fd0ff; --b-doc-bg: rgba(90, 180, 255, .14);
+  --b-txt: #9fc2ff; --b-txt-bg: rgba(100, 150, 255, .14);
+  --b-png: #d7a8ff; --b-png-bg: rgba(190, 120, 255, .14);
+
+  --radius: 12px;
+  color-scheme: dark;
+}
+
 html,
 body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }

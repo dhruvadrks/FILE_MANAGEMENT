@@ -1,119 +1,139 @@
 <div class="register-page">
-    <img
-      class="logo"
-      src="/image.jpg"
-      alt="logo"
-    >
-<div class="register-container">
+    <img class="logo" src="/image.jpg" alt="logo">
 
-  <h1>Register</h1>
+    <div class="register-container">
+        <h1>Register</h1>
 
-  <form (ngSubmit)="register()">
+        <form (ngSubmit)="register()">
 
-    <div class="row">
-      <div class="field">
-        <label for="first_name"><b>First Name</b></label>
-        <input
-          type="text"
-          id="first_name"
-          name="first_name"
-          [(ngModel)]="first_name"
-          (blur)="formatName('first_name')"
-        />
-      </div>
+            <div class="row">
+                <div class="field">
+                    <label for="first_name">First Name</label>
+                    <input
+                        type="text"
+                        id="first_name"
+                        name="first_name"
+                        [(ngModel)]="first_name"
+                        (blur)="formatName('first_name')"
+                    />
+                </div>
 
-      <div class="field">
-        <label for="last_name"><b>Last Name</b></label>
-        <input
-          type="text"
-          id="last_name"
-          name="last_name"
-          [(ngModel)]="last_name"
-          (blur)="formatName('last_name')"
-        />
-      </div>
+                <div class="field">
+                    <label for="last_name">Last Name</label>
+                    <input
+                        type="text"
+                        id="last_name"
+                        name="last_name"
+                        [(ngModel)]="last_name"
+                        (blur)="formatName('last_name')"
+                    />
+                </div>
+            </div>
+
+            <div class="field-full">
+                <label for="email">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    [(ngModel)]="email"
+                />
+            </div>
+
+            <div class="row">
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="input-wrap">
+                        <input
+                            [type]="showPassword ? 'text' : 'password'"
+                            id="password"
+                            name="password"
+                            [(ngModel)]="password"
+                        />
+                        <button
+                            type="button"
+                            class="eye"
+                            (click)="showPassword = !showPassword"
+                            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                            [attr.aria-pressed]="showPassword"
+                        >
+                            {{ showPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="input-wrap">
+                        <input
+                            [type]="showConfirmPassword ? 'text' : 'password'"
+                            id="confirm_password"
+                            name="confirm_password"
+                            [(ngModel)]="confirm_password"
+                        />
+                        <button
+                            type="button"
+                            class="eye"
+                            (click)="showConfirmPassword = !showConfirmPassword"
+                            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
+                            [attr.aria-pressed]="showConfirmPassword"
+                        >
+                            {{ showConfirmPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit" [disabled]="loading">
+                {{ loading ? 'Registering...' : 'Register' }}
+            </button>
+
+        </form>
+
+        @if (message) {
+            <p class="message" [class.error]="messageType === 'error'" [class.success]="messageType === 'success'">
+                {{ message }}
+            </p>
+        }
+
+        <div class="links">
+            <p>Already have an account? <a routerLink="/login">Login</a></p>
+        </div>
     </div>
-
-    <div class="field-full">
-      <label for="email"><b>Email</b></label>
-      <input
-        type="email"
-        id="email"
-        name="email"
-        [(ngModel)]="email"
-      />
-    </div>
-
-    <div class="row">
-      <div class="field">
-        <label for="password"><b>Password</b></label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          [(ngModel)]="password"
-        />
-      </div>
-
-      <div class="field">
-        <label for="confirm_password"><b>Confirm Password</b></label>
-        <input
-          type="password"
-          id="confirm_password"
-          name="confirm_password"
-          [(ngModel)]="confirm_password"
-        />
-      </div>
-    </div>
-
-    <button type="submit">
-      <b>Register</b>
-    </button>
-
-  </form>
-
-  <p><b>{{message}}</b></p>
-
-  <p>
-    Already have an account?
-    <a href="/login">Login</a>
-  </p>
-
 </div>
-</div>
 
-@if(showSuccessPopup) {
+@if (showSuccessPopup) {
 
-  <div class="success-overlay">
+    <div class="success-overlay">
 
-    <div class="success-popup">
+        <div class="success-popup">
 
-      <p>
-        Register successful. Redirect to login page.
-      </p>
+            <p>
+                Register successful. Redirect to login page.
+            </p>
 
-      <div class="success-buttons">
+            <div class="success-buttons">
 
-        <button
-          type="button"
-          class="success-ok-button"
-          (click)="closeSuccessPopup()"
-        >
-          OK
-        </button>
+                <button
+                    type="button"
+                    class="success-ok-button"
+                    (click)="closeSuccessPopup()"
+                >
+                    OK
+                </button>
 
-        <button
-          type="button"
-          class="success-cancel-button"
-          (click)="cancelSuccessPopup()"
-        >
-          Cancel
-        </button>
+                <button
+                    type="button"
+                    class="success-cancel-button"
+                    (click)="cancelSuccessPopup()"
+                >
+                    Cancel
+                </button>
 
-      </div>
+            </div>
+
+        </div>
 
     </div>
-
-  </div>
 
 }

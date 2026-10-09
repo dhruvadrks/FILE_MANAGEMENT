@@ -1,12 +1,10 @@
 <div class="dashboard">
 
-    <header class="top-bar">
-        <img class="logo" src="/image.jpg" alt="Logo">
-    </header>
-
     <div class="dashboard-body">
 
         <aside class="sidebar">
+
+            <img class="logo" src="/image.jpg" alt="Tricon Infotech">
 
             <button
                 class="upload-button"
@@ -28,18 +26,15 @@
                 routerLink="/dashboard/files"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
-                [class.active]="activepage === 'files'"
-                (click)="showAllFiles()"
             >
                 My Files
             </button>
 
             <button
                 class="sidebar-button"
+                routerLink="/dashboard/favorites"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
-                [class.active]="activepage === 'favorites'"
-                (click) = "showFavorites()"
             >
                 Favorites
             </button>
@@ -59,7 +54,8 @@
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
             >
-                👤 &nbsp;&nbsp;{{firstName}}   
+                <span class="avatar">{{ firstName.charAt(0) }}</span>
+                <span class="profile-name">{{ firstName }}</span>
             </button>
 
             <button
@@ -68,6 +64,7 @@
             >
                 Logout
             </button>
+
         </aside>
 
         <main class="main-content">
@@ -78,21 +75,23 @@
 
     </div>
 
+    @if (showMessage) {
 
+        <div class="message-overlay">
 
-@if(showMessage) {
+            <div
+                class="message-popup"
+                [class.error]="messageType === 'error'"
+            >
 
-    <div class="message-overlay">
+                <p>
+                    {{ message }}
+                </p>
 
-        <div class="message-popup">
-
-            <p>
-                {{message}}
-            </p>
+            </div>
 
         </div>
 
-    </div>
+    }
 
-}
 </div>

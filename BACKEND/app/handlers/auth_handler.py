@@ -5,8 +5,8 @@ import secrets
 from app.database.redis_client import redis_client
 from app.database.models import User, RefreshToken
 from app.schema.auth_schema import RegisterRequest,LoginRequest,ForgotPasswordRequest,PasswordResetResponse,ResetPasswordRequest,ProfileUpdate
-from app.security import create_refresh_tokens, hash_password, verify_password,create_access_token
-from app.utils import utc_now
+from app.service.security import create_refresh_tokens, hash_password, verify_password,create_access_token
+from app.service.utils import utc_now
 
 def register_user(request: RegisterRequest, db: Session):
 
